@@ -22,7 +22,10 @@ export default async function handler(req, res) {
     });
   }
 
-  const body = req.body || {};
+  const body =
+    typeof req.body === 'string'
+      ? JSON.parse(req.body)
+      : (req.body || {});
 
   const churchId = auth.profile.church_id;
 
@@ -67,12 +70,16 @@ export default async function handler(req, res) {
         department,
         token,
         token_expires_at: expires,
+
         check_start_at:
           new Date(
             Date.now() - 30 * 60 * 1000
           ).toISOString(),
+
         check_end_at: expires,
+
         is_active: true,
+
         created_by: auth.user.id
       })
       .select()
