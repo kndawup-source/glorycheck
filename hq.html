@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glory Check HQ</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#f5f7fb;color:#111827;
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:20px}
+.card{
+  background:#fff;border:1px solid #e5e7eb;border-radius:22px;
+  padding:20px;margin-bottom:16px;box-shadow:0 14px 36px rgba(15,23,42,.05);
+}
+h1{font-size:28px;margin:0 0 8px}
+h2{font-size:18px;margin:0 0 14px}
+p{color:#64748b}
+input,select,button{font:inherit}
+input,select{
+  width:100%;padding:13px;border:1px solid #d1d5db;
+  border-radius:13px;margin:5px 0 10px;
+}
+button{
+  border:0;border-radius:13px;background:#2563eb;color:white;
+  font-weight:900;padding:12px 14px;cursor:pointer;
+}
+button.gray{background:#111827}
+button.light{background:#eef2ff;color:#1d4ed8}
+button.danger{background:#dc2626}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stats div{background:#f8fafc;border-radius:15px;padding:14px}
+.stats b{font-size:24px}
+table{width:100%;border-collapse:collapse}
+th,td{
+  border-bottom:1px solid #e5e7eb;padding:10px;text-align:left;
+  font-size:14px;vertical-align:top;
+}
+.badge{
+  display:inline-block;padding:4px 8px;border-radius:999px;
+  background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:800;
+}
+@media(max-width:820px){
+  .grid,.stats{grid-template-columns:1fr}
+  .wrap{padding:14px}
+  table{display:block;overflow:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Glory Check HQ</h1>
+    <p id="profileText">슈퍼관리자 확인 중...</p>
+    <button class="gray" onclick="logout()">로그아웃</button>
+    <button class="light" onclick="loadData()">새로고침</button>
+  </div>
+
+  <div class="card">
+    <h2>전체 현황</h2>
+    <div class="stats">
+      <div>전체 교회<br><b id="totalChurches">-</b></div>
+      <div>활성 교회<br><b id="activeChurches">-</b></div>
+      <div>전체 교인<br><b id="totalMembers">-</b></div>
+      <div>출석 기록<br><b id="totalAttendance">-</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>교회 생성</h2>
+
+    <div class="grid">
+      <input id="churchName" placeholder="교회명 예: 서울은혜교회">
+      <input id="churchSlug" placeholder="주소용 slug 예: seoul-grace">
+
+      <select id="churchPlan">
+        <option value="standard">Standard</option>
+        <option value="premium">Premium</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+
+      <input id="adminName" placeholder="관리자 이름">
+      <input id="adminEmail" type="email" placeholder="관리자 이메일">
+      <input id="adminPassword" placeholder="초기 비밀번호">
+    </div>
+
+    <input id="churchMemo" placeholder="영업/운영 메모">
+
+    <button onclick="createChurch()">
+      교회 + 관리자 생성
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>교회 목록</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>교회</th>
+          <th>slug</th>
+          <th>플랜</th>
+          <th>상태</th>
+          <th>교인</th>
+          <th>출석기록</th>
+          <th>관리자</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+
+      <tbody id="churchBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+const SUPABASE_URL = "https://bwbyfscpemocqudrfgcs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3Ynlmc2NwZW1vY3F1ZHJmZ2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTkyMzgsImV4cCI6MjA5Mzg5NTIzOH0.jACzv52gOByi1se-6zA7_NmENjF2HnKDjEwdAMURn8A";
+
+const supabase =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+let state = {
+  churches: [],
+  totals: {}
+};
+
+const $ =
+  id => document.getElementById(id);
+
+function token(){
+  return localStorage.getItem(
+    'glory_hq_access_token'
+  );
+}
+
+function authHeaders(){
+  return {
+    'Content-Type':'application/json',
+    'Authorization':'Bearer ' + token()
+  };
+}
+
+async function api(url,opt = {}){
+
+  const res =
+    await fetch(url,{
+      ...opt,
+      headers:{
+        ...authHeaders(),
+        ...(opt.headers || {})
+      }
+    });
+
+  const data =
+    await res.json().catch(() => ({}));
+
+  if(!res.ok){
+    throw new Error(
+      data.error || '요청 실패'
+    );
+  }
+
+  return data;
+}
+
+window.logout = async function(){
+
+  localStorage.removeItem(
+    'glory_hq_access_token'
+  );
+
+  await supabase.auth.signOut();
+
+  location.href = '/hq-login.html';
+}
+
+async function init(){
+
+  if(!token()){
+    location.href = '/hq-login.html';
+    return;
+  }
+
+  await loadData();
+}
+
+window.loadData = async function(){
+
+  try{
+
+    const data =
+      await api('/api/hq-data');
+
+    state = data;
+
+    $('profileText').textContent =
+      `${data.profile.name} / 슈퍼관리자`;
+
+    $('totalChurches').textContent =
+      data.totals.churches;
+
+    $('activeChurches').textContent =
+      data.totals.active_churches;
+
+    $('totalMembers').textContent =
+      data.totals.members;
+
+    $('totalAttendance').textContent =
+      data.totals.attendance;
+
+    renderChurches();
+
+  }catch(e){
+
+    alert(e.message);
+
+    if(
+      e.message.includes('로그인') ||
+      e.message.includes('권한')
+    ){
+      logout();
+    }
+  }
+}
+
+function renderChurches(){
+
+  $('churchBody').innerHTML =
+    (state.churches || []).map(c => `
+
+      <tr>
+        <td>
+          <b>${c.name}</b><br>
+          <small>${c.memo || ''}</small>
+        </td>
+
+        <td>${c.slug}</td>
+
+        <td>
+          <span class="badge">${c.plan}</span>
+        </td>
+
+        <td>${c.status}</td>
+
+        <td>${c.member_count}</td>
+
+        <td>${c.attendance_count}</td>
+
+        <td>${c.admin_count}</td>
+
+        <td>
+          ${
+            c.status === 'active'
+              ? `<button class="danger" onclick="toggleChurch('${c.id}','paused')">중지</button>`
+              : `<button onclick="toggleChurch('${c.id}','active')">활성</button>`
+          }
+        </td>
+      </tr>
+    `).join('');
+}
+
+window.createChurch = async function(){
+
+  try{
+
+    await api('/api/hq-create-church',{
+      method:'POST',
+      body:JSON.stringify({
+        church_name:$('churchName').value,
+        slug:$('churchSlug').value,
+        plan:$('churchPlan').value,
+        memo:$('churchMemo').value,
+        admin_name:$('adminName').value,
+        admin_email:$('adminEmail').value,
+        admin_password:$('adminPassword').value
+      })
+    });
+
+    alert('교회와 관리자 계정이 생성되었습니다.');
+
+    [
+      'churchName',
+      'churchSlug',
+      'churchMemo',
+      'adminName',
+      'adminEmail',
+      'adminPassword'
+    ].forEach(id => {
+      $(id).value = '';
+    });
+
+    await loadData();
+
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+window.toggleChurch = async function(church_id,status){
+
+  try{
+
+    await api('/api/hq-toggle-church',{
+      method:'POST',
+      body:JSON.stringify({
+        church_id,
+        status
+      })
+    });
+
+    await loadData();
+
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
