@@ -502,12 +502,20 @@ window.printQr = function(){
 window.downloadQr = function(){
 
   const canvas = $('qrCanvas');
+  const img = $('qrImage');
 
   const a =
     document.createElement('a');
 
-  a.href =
-    canvas.toDataURL('image/png');
+  if (canvas.style.display !== 'none') {
+
+    a.href =
+      canvas.toDataURL('image/png');
+
+  } else {
+
+    a.href = img.src;
+  }
 
   a.download =
     'church-qr.png';
