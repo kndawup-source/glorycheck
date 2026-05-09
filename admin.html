@@ -669,10 +669,61 @@ window.copyText = function(t){
   alert('복사되었습니다.');
 }
 
-window.downloadCSV = function(){
-  location.href = '/api/export-csv';
-}
+window.downloadCSV = async function(){
 
+  try{
+
+    const res =
+      await fetch('/api/export-csv', {
+        method:'GET',
+        headers:{
+          'Authorization':
+            'Bearer ' + token()
+        }
+      });
+
+    if(!res.ok){
+
+      const text =
+        await res.text();
+
+      alert(
+        text || 'CSV 다운로드 실패'
+      );
+
+      return;
+    }
+
+    const blob =
+      await res.blob();
+
+    const downloadUrl =
+      URL.createObjectURL(blob);
+
+    const a =
+      document.createElement('a');
+
+    a.href =
+      downloadUrl;
+
+    a.download =
+      'glory-check-attendance.csv';
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(downloadUrl);
+
+  }catch(e){
+
+    alert(
+      'CSV 다운로드 중 오류가 발생했습니다.'
+    );
+  }
+}
 init();
 
 </script>
