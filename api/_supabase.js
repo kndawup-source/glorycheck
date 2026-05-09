@@ -63,3 +63,53 @@ export async function requireAuth(req, res, roles = []) {
 export function safeText(v) {
   return String(v ?? '').trim();
 }
+export async function requireSuperAdmin(req, res){
+
+  const user =
+    await getUser(req);
+
+  if (!user) {
+
+    res.status(401).json({
+      error:'로그인이 필요합니다.'
+    });
+
+    return null;
+  }
+
+  const profile =
+    await getProfile(user.id);
+
+  if (
+    !profile ||
+    profile.system_role !== 'super_admin'
+  ) {
+
+    res.status(403).json({
+      error:'슈퍼관리자 권한이 필요합니다.'
+    });
+
+    return null;
+  }
+
+  return {
+    user,
+    profile
+  };
+}
+
+export function parseBody(req){
+
+  return typeof req.body === 'string'
+    ? JSON.parse(req.body)
+    : (req.body || {});
+}
+
+export function slugify(input){
+
+  return String(input || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
