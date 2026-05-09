@@ -310,36 +310,6 @@ function escapeHtml(value){
     .replaceAll("'","&#039;");
 }
 
-function getYoutubeEmbedUrl(url){
-  if(!url) return '';
-
-  try{
-    const u = new URL(url);
-
-    if(u.hostname.includes('youtu.be')){
-      const id = u.pathname.replace('/','').split('?')[0];
-      return id ? `https://www.youtube.com/embed/${id}` : '';
-    }
-
-    if(u.hostname.includes('youtube.com')){
-      const id = u.searchParams.get('v');
-      if(id) return `https://www.youtube.com/embed/${id}`;
-
-      if(u.pathname.includes('/shorts/')){
-        const shortsId = u.pathname.split('/shorts/')[1]?.split('/')[0];
-        if(shortsId) return `https://www.youtube.com/embed/${shortsId}`;
-      }
-
-      if(u.pathname.includes('/embed/')){
-        return url;
-      }
-    }
-
-    return '';
-  }catch(e){
-    return '';
-  }
-}
 
 function getCheckinService(services){
   const now = new Date();
@@ -390,8 +360,10 @@ function renderCheckinBox(services){
 
 function renderCards(data){
   const home = data.home || {};
-  const sermonEmbed = getYoutubeEmbedUrl(home.sermon_link);
-
+const sermonEmbed =
+  home.sermon_link
+    ? `https://www.youtube.com/embed/${home.sermon_link.trim()}`
+    : '';
   const noticeTitle =
     home.notice_title || '오늘의 안내';
 
