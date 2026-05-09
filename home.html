@@ -360,9 +360,40 @@ function renderCheckinBox(services){
 
 function renderCards(data){
   const home = data.home || {};
+const rawYoutube =
+  String(home.sermon_link || '').trim();
+
+let youtubeId = rawYoutube;
+
+if(rawYoutube.includes('youtube.com/watch')){
+  try{
+    youtubeId = new URL(rawYoutube).searchParams.get('v') || '';
+  }catch(e){}
+}
+
+if(rawYoutube.includes('youtu.be/')){
+  try{
+    youtubeId = new URL(rawYoutube).pathname.replace('/','');
+  }catch(e){}
+}
+
+if(rawYoutube.includes('/shorts/')){
+  try{
+    youtubeId = new URL(rawYoutube).pathname.split('/shorts/')[1]?.split('/')[0] || '';
+  }catch(e){}
+}
+
+youtubeId =
+  youtubeId
+    .replace('https://www.youtube.com/embed/','')
+    .replace('https://youtube.com/embed/','')
+    .split('&')[0]
+    .split('?')[0]
+    .trim();
+
 const sermonEmbed =
-  home.sermon_link
-    ? `https://www.youtube.com/embed/${home.sermon_link.trim()}`
+  youtubeId
+    ? `https://www.youtube.com/embed/${youtubeId}`
     : '';
   const noticeTitle =
     home.notice_title || '오늘의 안내';
