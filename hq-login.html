@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glory Check HQ 로그인</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:#0f172a;
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
+  color:#111827;padding:20px;
+}
+.card{
+  width:100%;max-width:400px;background:#fff;border-radius:26px;
+  padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.25);
+}
+.kicker{font-weight:900;color:#2563eb;letter-spacing:.08em;margin-bottom:10px}
+h1{font-size:28px;margin:0 0 8px}
+p{color:#64748b}
+input,button{width:100%;font:inherit;padding:15px;border-radius:14px;margin-top:10px}
+input{border:1px solid #d1d5db}
+button{border:0;background:#2563eb;color:#fff;font-weight:900;cursor:pointer}
+.small{font-size:13px;color:#64748b;margin-top:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="kicker">GLORY CHECK HQ</div>
+  <h1>슈퍼관리자 로그인</h1>
+  <p>교회 생성과 전체 운영 현황을 관리합니다.</p>
+
+  <input id="email" type="email" placeholder="슈퍼관리자 이메일">
+  <input id="password" type="password" placeholder="비밀번호">
+
+  <button onclick="login()">로그인</button>
+
+  <div class="small">
+    슈퍼관리자 계정은 profiles.system_role = super_admin 이어야 합니다.
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+const SUPABASE_URL = "https://bwbyfscpemocqudrfgcs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3Ynlmc2NwZW1vY3F1ZHJmZ2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTkyMzgsImV4cCI6MjA5Mzg5NTIzOH0.jACzv52gOByi1se-6zA7_NmENjF2HnKDjEwdAMURn8A";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+window.login = async function(){
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  if(!email || !password){
+    alert('이메일과 비밀번호를 입력해주세요.');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    alert('로그인 실패');
+    return;
+  }
+
+  localStorage.setItem('glory_hq_access_token', data.session.access_token);
+  location.href = '/hq.html';
+}
+</script>
+</body>
+</html>
