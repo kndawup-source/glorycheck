@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교회 출석 관리자 로그인</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f5f7fb;
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
+  color:#111827;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:390px;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 24px 60px rgba(15,23,42,.08);
+}
+
+h1{
+  margin:0 0 8px;
+  font-size:26px;
+}
+
+p{
+  color:#6b7280;
+}
+
+input,button{
+  width:100%;
+  font:inherit;
+  padding:15px;
+  border-radius:14px;
+  margin-top:10px;
+}
+
+input{
+  border:1px solid #d1d5db;
+}
+
+button{
+  border:0;
+  background:#2563eb;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.small{
+  font-size:13px;
+  color:#6b7280;
+  margin-top:14px;
+  line-height:1.5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>관리자 로그인</h1>
+
+  <p>교회 출석 관리 시스템</p>
+
+  <input id="email" type="email" placeholder="이메일">
+  <input id="password" type="password" placeholder="비밀번호">
+
+  <button onclick="login()">로그인</button>
+
+  <div class="small">
+    관리자 계정은 Supabase Authentication에서 생성해야 합니다.
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+window.login = async function(){
+
+  const email =
+    document.getElementById('email').value.trim();
+
+  const password =
+    document.getElementById('password').value.trim();
+
+  if(!email || !password){
+    alert('이메일과 비밀번호를 입력해주세요.');
+    return;
+  }
+
+  const { data, error } =
+    await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if(error){
+    alert('로그인 실패');
+    return;
+  }
+
+  localStorage.setItem(
+    'church_access_token',
+    data.session.access_token
+  );
+
+  location.href = '/admin.html';
+}
+</script>
+
+</body>
+</html>
