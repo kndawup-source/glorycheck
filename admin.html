@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교회 출석 관리자</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#f5f7fb;color:#111827;
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
+}
+.wrap{max-width:1160px;margin:0 auto;padding:20px}
+.card{
+  background:#fff;border:1px solid #e5e7eb;border-radius:22px;
+  padding:20px;margin-bottom:16px;box-shadow:0 14px 36px rgba(15,23,42,.05);
+}
+h1{font-size:27px;margin:0 0 8px}
+h2{font-size:18px;margin:0 0 14px}
+p{color:#6b7280}
+input,select,button{font:inherit}
+input,select{
+  width:100%;padding:13px;border:1px solid #d1d5db;
+  border-radius:13px;margin:5px 0 10px;
+}
+button{
+  border:0;border-radius:13px;background:#2563eb;color:white;
+  font-weight:900;padding:12px 14px;cursor:pointer;
+}
+button.gray{background:#111827}
+button.light{background:#eef2ff;color:#1d4ed8}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.stats div{background:#f8fafc;border-radius:15px;padding:14px}
+.stats b{font-size:23px}
+table{width:100%;border-collapse:collapse}
+th,td{
+  border-bottom:1px solid #e5e7eb;padding:10px;text-align:left;
+  font-size:14px;vertical-align:top;
+}
+.qrbox{
+  background:#f8fafc;border:1px dashed #cbd5e1;border-radius:15px;
+  padding:14px;margin-bottom:10px;word-break:break-all;
+}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.section{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.badge{
+  display:inline-block;padding:4px 8px;border-radius:999px;
+  background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:800;
+}
+.modal{
+  position:fixed;inset:0;background:rgba(15,23,42,.55);
+  display:none;align-items:center;justify-content:center;
+  padding:18px;z-index:1000;
+}
+.modal.show{display:flex}
+.modal-card{
+  width:100%;max-width:430px;background:white;border-radius:26px;
+  padding:24px;text-align:center;box-shadow:0 30px 90px rgba(15,23,42,.28);
+}
+.qr-canvas-wrap{
+  display:flex;justify-content:center;align-items:center;background:#fff;
+  border:1px solid #e5e7eb;border-radius:20px;padding:18px;margin:16px auto;
+}
+.qr-title{font-size:22px;font-weight:900;margin:0 0 6px}
+.qr-sub{color:#6b7280;font-size:14px;margin:0}
+.qr-link{font-size:12px;color:#64748b;word-break:break-all;margin-top:10px}
+.print-only{display:none}
+@media(max-width:820px){
+  .grid,.stats,.section{grid-template-columns:1fr}
+  .wrap{padding:14px}
+  table{display:block;overflow:auto}
+}
+@media print{
+  body *{visibility:hidden}
+  #qrModal,#qrModal *{visibility:visible}
+  #qrModal{position:fixed;inset:0;background:#fff;display:flex!important}
+  .modal-card{box-shadow:none;border:0;max-width:100%;border-radius:0}
+  .no-print{display:none!important}
+  .print-only{display:block}
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>교회 출석 관리자</h1>
+    <p id="profileText">로그인 확인 중...</p>
+    <div class="row">
+      <button class="gray" onclick="logout()">로그아웃</button>
+      <button class="light" onclick="loadData()">새로고침</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>대시보드</h2>
+    <div class="stats">
+      <div>전체 교인<br><b id="memberCount">-</b></div>
+      <div>활성 교인<br><b id="activeCount">-</b></div>
+      <div>예배<br><b id="serviceCount">-</b></div>
+      <div>출석기록<br><b id="attendanceCount">-</b></div>
+      <div>4주 미출석<br><b id="absentCount">-</b></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <h2>교인 등록 / 수정</h2>
+      <input id="memberId" type="hidden">
+
+      <div class="grid">
+        <input id="memberName" placeholder="이름">
+        <input id="memberPhone" placeholder="휴대폰 뒤 4자리" maxlength="4" inputmode="numeric">
+        <input id="memberDept" placeholder="부서">
+        <input id="memberGroup" placeholder="셀/구역">
+
+        <select id="memberType">
+          <option value="regular">등록교인</option>
+          <option value="new">새가족</option>
+        </select>
+
+        <select id="memberStatus">
+          <option value="active">활성</option>
+          <option value="inactive">비활성</option>
+        </select>
+      </div>
+
+      <input id="memberMemo" placeholder="메모">
+      <button onclick="saveMember()">교인 저장</button>
+    </div>
+
+    <div class="card">
+      <h2>예배 생성 / QR 생성</h2>
+
+      <div class="grid">
+        <input id="title" placeholder="예배명">
+        <input id="serviceDate" type="date">
+        <input id="serviceTime" placeholder="시간 예: 11:00">
+        <input id="department" placeholder="대상 부서">
+
+        <select id="expireHours">
+          <option value="3">3시간</option>
+          <option value="6">6시간</option>
+          <option value="12">12시간</option>
+        </select>
+      </div>
+
+      <button onclick="createService()">예배 QR 생성</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>예배 목록 / QR</h2>
+    <div id="services"></div>
+  </div>
+
+  <div class="card">
+    <h2>교인 목록</h2>
+    <input id="search" placeholder="이름/부서/셀 검색" oninput="renderMembers()">
+
+    <table>
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>뒤4자리</th>
+          <th>부서</th>
+          <th>셀</th>
+          <th>구분</th>
+          <th>상태</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody id="memberBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>최근 출석 기록</h2>
+
+    <button class="gray" onclick="downloadCSV()">
+      CSV 다운로드
+    </button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>날짜</th>
+          <th>예배</th>
+          <th>이름</th>
+          <th>부서</th>
+          <th>상태</th>
+          <th>체크</th>
+        </tr>
+      </thead>
+
+      <tbody id="attendanceBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>최근 4주 미출석자</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>뒤4자리</th>
+          <th>부서</th>
+          <th>셀</th>
+          <th>메모</th>
+        </tr>
+      </thead>
+
+      <tbody id="absentBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal" id="qrModal" onclick="closeQrModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+
+    <div class="qr-title" id="qrModalTitle">
+      예배 QR
+    </div>
+
+    <p class="qr-sub" id="qrModalSub">
+      휴대폰 카메라로 스캔해주세요.
+    </p>
+
+    <div class="qr-canvas-wrap">
+      <canvas id="qrCanvas"></canvas>
+    </div>
+
+    <div class="qr-link" id="qrModalLink"></div>
+
+    <p class="print-only">
+      QR을 스캔하면 출석체크 페이지로 이동합니다.
+    </p>
+
+    <div class="row no-print" style="justify-content:center;margin-top:16px">
+      <button onclick="printQr()">QR 인쇄</button>
+
+      <button class="light" onclick="downloadQr()">
+        QR 이미지 저장
+      </button>
+
+      <button class="gray" onclick="hideQr()">
+        닫기
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+
+import { createClient }
+from "https://esm.sh/@supabase/supabase-js";
+
+const SUPABASE_URL =
+"https://whtveszhzwkpbyhegklv.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"여기에_네_anon_key";
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+let state = {
+  members: [],
+  services: [],
+  attendance: [],
+  long_absent: [],
+  profile: null,
+  counts: {}
+};
+
+let currentQr = {
+  title:'',
+  link:''
+};
+
+const $ = id => document.getElementById(id);
+
+const base = location.origin;
+
+$('serviceDate').valueAsDate = new Date();
+
+function token(){
+  return localStorage.getItem(
+    'church_access_token'
+  );
+}
+
+function authHeaders(){
+  return {
+    'Content-Type':'application/json',
+    'Authorization':'Bearer ' + token()
+  };
+}
+
+async function api(url,opt={}){
+  const res = await fetch(url,{
+    ...opt,
+    headers:{
+      ...authHeaders(),
+      ...(opt.headers || {})
+    }
+  });
+
+  const data =
+    await res.json().catch(()=>({}));
+
+  if(!res.ok){
+    throw new Error(
+      data.error || '요청 실패'
+    );
+  }
+
+  return data;
+}
+
+window.logout = async function(){
+  localStorage.removeItem(
+    'church_access_token'
+  );
+
+  await supabase.auth.signOut();
+
+  location.href = '/login.html';
+}
+
+async function init(){
+
+  if(!token()){
+    location.href='/login.html';
+    return;
+  }
+
+  await loadData();
+}
+
+window.loadData = async function(){
+
+  try{
+
+    const data =
+      await api('/api/admin-data');
+
+    state = data;
+
+    $('profileText').textContent =
+      `${data.profile.churches?.name || '교회'} / ${data.profile.name}`;
+
+    $('memberCount').textContent =
+      data.counts.members;
+
+    $('activeCount').textContent =
+      data.counts.active_members;
+
+    $('serviceCount').textContent =
+      data.counts.services;
+
+    $('attendanceCount').textContent =
+      data.counts.attendance;
+
+    $('absentCount').textContent =
+      data.counts.long_absent;
+
+    renderServices();
+    renderMembers();
+    renderAttendance();
+    renderAbsent();
+
+  }catch(e){
+
+    alert(e.message);
+
+    if(e.message.includes('로그인')){
+      logout();
+    }
+  }
+}
+
+function renderServices(){
+
+  $('services').innerHTML =
+    (state.services || []).map(s => {
+
+      const link =
+        `${base}/check.html?token=${s.token}`;
+
+      const titleText =
+        `${s.title} ${s.service_date}`;
+
+      return `
+        <div class="qrbox">
+          <b>${s.title}</b>
+          <span class="badge">${s.department || '전체'}</span><br>
+
+          ${s.service_date}
+          ${s.service_time || ''}
+
+          <p>${link}</p>
+
+          <div class="row">
+
+            <button class="light"
+              onclick="copyText('${link}')">
+              링크 복사
+            </button>
+
+            <button
+              onclick='showQr(
+                ${JSON.stringify(titleText)},
+                ${JSON.stringify(link)}
+              )'>
+              QR 크게 보기
+            </button>
+
+          </div>
+        </div>
+      `;
+    }).join('');
+}
+
+window.showQr = function(title,link){
+
+  currentQr = {title,link};
+
+  $('qrModalTitle').textContent =
+    title;
+
+  $('qrModalLink').textContent =
+    link;
+
+  $('qrModal').classList.add('show');
+
+  QRCode.toCanvas(
+    $('qrCanvas'),
+    link,
+    {
+      width:280,
+      margin:2
+    }
+  );
+}
+
+window.hideQr = function(){
+  $('qrModal').classList.remove('show');
+}
+
+window.closeQrModal = function(e){
+  if(e.target.id==='qrModal'){
+    hideQr();
+  }
+}
+
+window.printQr = function(){
+  window.print();
+}
+
+window.downloadQr = function(){
+
+  const canvas = $('qrCanvas');
+
+  const a =
+    document.createElement('a');
+
+  a.href =
+    canvas.toDataURL('image/png');
+
+  a.download =
+    'church-qr.png';
+
+  a.click();
+}
+
+window.renderMembers = function(){
+
+  const q =
+    ($('search').value || '')
+    .toLowerCase();
+
+  const list =
+    (state.members || []).filter(m =>
+
+      [m.name,m.department,m.group_name]
+      .join(' ')
+      .toLowerCase()
+      .includes(q)
+    );
+
+  $('memberBody').innerHTML =
+    list.map(m => `
+      <tr>
+        <td>${m.name}</td>
+        <td>${m.phone_last4}</td>
+        <td>${m.department}</td>
+        <td>${m.group_name || ''}</td>
+        <td>${m.member_type}</td>
+        <td>${m.status}</td>
+
+        <td>
+          <button class="light"
+            onclick='editMember(
+              ${JSON.stringify(m)}
+            )'>
+            수정
+          </button>
+        </td>
+      </tr>
+    `).join('');
+}
+
+window.editMember = function(m){
+
+  $('memberId').value = m.id;
+  $('memberName').value = m.name;
+  $('memberPhone').value = m.phone_last4;
+  $('memberDept').value = m.department;
+  $('memberGroup').value = m.group_name || '';
+  $('memberType').value = m.member_type || 'regular';
+  $('memberStatus').value = m.status || 'active';
+  $('memberMemo').value = m.memo || '';
+
+  scrollTo(0,0);
+}
+  function renderAttendance(){
+
+  $('attendanceBody').innerHTML =
+    (state.attendance || []).map(a => `
+      <tr>
+        <td>${a.services?.service_date || ''}</td>
+        <td>${a.services?.title || ''}</td>
+        <td>${a.members?.name || ''}</td>
+        <td>${a.members?.department || ''}</td>
+        <td>${a.status}</td>
+        <td>${new Date(a.checked_at).toLocaleString()}</td>
+      </tr>
+    `).join('');
+}
+
+function renderAbsent(){
+
+  $('absentBody').innerHTML =
+    (state.long_absent || []).map(m => `
+      <tr>
+        <td>${m.name}</td>
+        <td>${m.phone_last4}</td>
+        <td>${m.department}</td>
+        <td>${m.group_name || ''}</td>
+        <td>${m.memo || ''}</td>
+      </tr>
+    `).join('');
+}
+
+window.saveMember = async function(){
+
+  try{
+
+    await api('/api/save-member',{
+      method:'POST',
+      body:JSON.stringify({
+        id:$('memberId').value || null,
+        name:$('memberName').value,
+        phone_last4:$('memberPhone').value,
+        department:$('memberDept').value,
+        group_name:$('memberGroup').value,
+        member_type:$('memberType').value,
+        status:$('memberStatus').value,
+        memo:$('memberMemo').value
+      })
+    });
+
+    alert('저장되었습니다.');
+
+    [
+      'memberId',
+      'memberName',
+      'memberPhone',
+      'memberDept',
+      'memberGroup',
+      'memberMemo'
+    ].forEach(id => {
+      $(id).value = '';
+    });
+
+    await loadData();
+
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+window.createService = async function(){
+
+  try{
+
+    await api('/api/create-service',{
+      method:'POST',
+      body:JSON.stringify({
+        title:$('title').value,
+        service_date:$('serviceDate').value,
+        service_time:$('serviceTime').value,
+        department:$('department').value,
+        expire_hours:$('expireHours').value
+      })
+    });
+
+    alert('예배 QR이 생성되었습니다.');
+
+    await loadData();
+
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+window.copyText = function(t){
+  navigator.clipboard.writeText(t);
+  alert('복사되었습니다.');
+}
+
+window.downloadCSV = function(){
+  location.href = '/api/export-csv';
+}
+
+init();
+
+</script>
+</body>
+</html>
