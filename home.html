@@ -7,6 +7,14 @@
 
 <style>
 *{box-sizing:border-box}
+
+html,
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
 body{
   margin:0;
   min-height:100vh;
@@ -14,11 +22,14 @@ body{
   color:#111827;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
 }
+
 .wrap{
+  width:100%;
   max-width:960px;
   margin:0 auto;
   padding:20px;
 }
+
 .hero{
   background:linear-gradient(135deg,#0f172a,#1d4ed8);
   color:#fff;
@@ -26,22 +37,26 @@ body{
   padding:30px;
   box-shadow:0 24px 70px rgba(15,23,42,.18);
 }
+
 .brand{
   font-weight:1000;
   letter-spacing:.09em;
   color:#bfdbfe;
   font-size:13px;
 }
+
 h1{
   margin:14px 0 8px;
   font-size:36px;
   letter-spacing:-.055em;
 }
+
 .hero p{
   color:#dbeafe;
   line-height:1.65;
   margin:0;
 }
+
 .badge{
   display:inline-block;
   margin-top:16px;
@@ -53,12 +68,59 @@ h1{
   font-size:12px;
   font-weight:900;
 }
+
+.checkin-box{
+  display:none;
+  margin-top:18px;
+  background:#fff;
+  border:1px solid #dbeafe;
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+
+.checkin-box h2{
+  margin:0 0 8px;
+  font-size:22px;
+  letter-spacing:-.035em;
+}
+
+.checkin-box p{
+  margin:0;
+  color:#64748b;
+  line-height:1.55;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:auto;
+  min-height:44px;
+  padding:12px 15px;
+  border:0;
+  border-radius:15px;
+  background:#2563eb;
+  color:#fff;
+  font:inherit;
+  font-weight:1000;
+  text-decoration:none;
+  cursor:pointer;
+  margin-top:14px;
+}
+
+.btn.light{
+  background:#eef2ff;
+  color:#1d4ed8;
+}
+
 .grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(2,1fr);
   gap:14px;
   margin-top:18px;
 }
+
 .card{
   background:#fff;
   border:1px solid #e5e7eb;
@@ -66,19 +128,64 @@ h1{
   padding:20px;
   box-shadow:0 12px 30px rgba(15,23,42,.045);
 }
+
 .card h2{
   margin:0 0 10px;
   font-size:18px;
   letter-spacing:-.025em;
 }
+
 .card p{
   margin:0;
   color:#64748b;
   line-height:1.58;
+  white-space:pre-line;
 }
+
 .section{
   margin-top:18px;
 }
+
+.video-card{
+  grid-column:1/-1;
+}
+
+.video-wrap{
+  position:relative;
+  width:100%;
+  padding-top:56.25%;
+  border-radius:18px;
+  overflow:hidden;
+  background:#000;
+  margin-top:12px;
+}
+
+.video-wrap iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+}
+
+.link-box{
+  margin-top:12px;
+  padding:13px;
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  border-radius:16px;
+  color:#475569;
+  font-size:14px;
+  line-height:1.5;
+  word-break:break-all;
+}
+
+.link-box a{
+  color:#1d4ed8;
+  font-weight:900;
+  text-decoration:none;
+}
+
 .service{
   display:flex;
   justify-content:space-between;
@@ -86,29 +193,71 @@ h1{
   padding:14px 0;
   border-bottom:1px solid #e5e7eb;
 }
+
 .service:last-child{
   border-bottom:0;
 }
+
 .service b{
   display:block;
 }
+
 .service span{
   color:#64748b;
   font-size:13px;
 }
+
 .footer{
   text-align:center;
   color:#94a3b8;
   font-size:12px;
   margin:24px 0 8px;
 }
+
+.error-card{
+  background:#fff;
+  border:1px solid #fecaca;
+  color:#991b1b;
+  border-radius:24px;
+  padding:20px;
+  margin-top:18px;
+}
+
 @media(max-width:720px){
-  .wrap{padding:14px}
-  .hero{border-radius:26px;padding:24px}
-  h1{font-size:31px}
-  .grid{grid-template-columns:1fr}
-  .service{display:block}
-  .service span{display:block;margin-top:4px}
+  .wrap{
+    padding:14px;
+  }
+
+  .hero{
+    border-radius:26px;
+    padding:24px;
+  }
+
+  h1{
+    font-size:31px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    border-radius:20px;
+    padding:17px;
+  }
+
+  .service{
+    display:block;
+  }
+
+  .service span{
+    display:block;
+    margin-top:4px;
+  }
+
+  .btn{
+    width:100%;
+  }
 }
 </style>
 </head>
@@ -128,6 +277,14 @@ h1{
     <span class="badge" id="churchCode">교회코드</span>
   </section>
 
+  <section class="checkin-box" id="checkinBox">
+    <h2 id="checkinTitle">출석체크가 열렸습니다</h2>
+    <p id="checkinText">
+      잠시 후 출석체크 화면으로 이동합니다.
+    </p>
+    <button class="btn" id="checkinBtn">출석체크 하기</button>
+  </section>
+
   <section class="grid" id="cards"></section>
 
   <section class="card section">
@@ -143,6 +300,204 @@ h1{
 <script>
 const church =
   new URLSearchParams(location.search).get('church');
+
+function escapeHtml(value){
+  return String(value || '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+function getYoutubeEmbedUrl(url){
+  if(!url) return '';
+
+  try{
+    const u = new URL(url);
+
+    if(u.hostname.includes('youtu.be')){
+      const id = u.pathname.replace('/','').split('?')[0];
+      return id ? `https://www.youtube.com/embed/${id}` : '';
+    }
+
+    if(u.hostname.includes('youtube.com')){
+      const id = u.searchParams.get('v');
+      if(id) return `https://www.youtube.com/embed/${id}`;
+
+      if(u.pathname.includes('/shorts/')){
+        const shortsId = u.pathname.split('/shorts/')[1]?.split('/')[0];
+        if(shortsId) return `https://www.youtube.com/embed/${shortsId}`;
+      }
+
+      if(u.pathname.includes('/embed/')){
+        return url;
+      }
+    }
+
+    return '';
+  }catch(e){
+    return '';
+  }
+}
+
+function getCheckinService(services){
+  const now = new Date();
+
+  return (services || []).find(s => {
+    if(!s.token) return false;
+
+    const start =
+      s.check_start_at
+        ? new Date(s.check_start_at)
+        : new Date(`${s.service_date}T${s.service_time || '00:00'}`);
+
+    const openAt =
+      new Date(start.getTime() - 10 * 60 * 1000);
+
+    const end =
+      s.check_end_at
+        ? new Date(s.check_end_at)
+        : new Date(start.getTime() + 3 * 60 * 60 * 1000);
+
+    return now >= openAt && now <= end;
+  });
+}
+
+function renderCheckinBox(services){
+  const service = getCheckinService(services);
+
+  if(!service) return;
+
+  const checkinUrl =
+    `/check.html?token=${encodeURIComponent(service.token)}`;
+
+  document.getElementById('checkinBox').style.display = 'block';
+  document.getElementById('checkinTitle').textContent =
+    `${service.title} 출석체크가 열렸습니다.`;
+
+  document.getElementById('checkinText').textContent =
+    '현장에 계신 분은 출석체크를 진행해주세요. 잠시 후 자동으로 이동합니다.';
+
+  document.getElementById('checkinBtn').onclick = function(){
+    location.href = checkinUrl;
+  };
+
+  setTimeout(() => {
+    location.href = checkinUrl;
+  }, 3000);
+}
+
+function renderCards(data){
+  const home = data.home || {};
+  const sermonEmbed = getYoutubeEmbedUrl(home.sermon_link);
+
+  const noticeTitle =
+    home.notice_title || '오늘의 안내';
+
+  const noticeBody =
+    home.notice_body || '예배와 모임 안내는 교회 공지 채널을 확인해주세요.';
+
+  const sermonTitle =
+    home.sermon_title || '이번 주 말씀';
+
+  const sermonBody =
+    home.sermon_link
+      ? '아래에서 이번 주 말씀 영상을 바로 확인할 수 있습니다.'
+      : '설교 영상 또는 말씀 링크가 준비 중입니다.';
+
+  const newFamilyText =
+    home.new_family_text || '처음 방문하셨다면 안내위원 또는 담당 리더에게 말씀해주세요.';
+
+  const offeringText =
+    home.offering_text || '온라인 헌금 안내는 교회 공식 안내를 확인해주세요.';
+
+  const bulletinLink =
+    home.bulletin_link || '';
+
+  const cards = [];
+
+  cards.push(`
+    <div class="card">
+      <h2>${escapeHtml(noticeTitle)}</h2>
+      <p>${escapeHtml(noticeBody)}</p>
+    </div>
+  `);
+
+  cards.push(`
+    <div class="card video-card">
+      <h2>${escapeHtml(sermonTitle)}</h2>
+      <p>${escapeHtml(sermonBody)}</p>
+
+      ${
+        sermonEmbed
+          ? `
+            <div class="video-wrap">
+              <iframe
+                src="${escapeHtml(sermonEmbed)}"
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+          `
+          : home.sermon_link
+            ? `
+              <div class="link-box">
+                <a href="${escapeHtml(home.sermon_link)}" target="_blank" rel="noopener">
+                  설교 링크 열기
+                </a>
+              </div>
+            `
+            : ''
+      }
+    </div>
+  `);
+
+  if(bulletinLink){
+    cards.push(`
+      <div class="card">
+        <h2>주보 보기</h2>
+        <p>이번 주 주보를 확인할 수 있습니다.</p>
+        <div class="link-box">
+          <a href="${escapeHtml(bulletinLink)}" target="_blank" rel="noopener">
+            주보 열기
+          </a>
+        </div>
+      </div>
+    `);
+  }
+
+  cards.push(`
+    <div class="card">
+      <h2>새가족 안내</h2>
+      <p>${escapeHtml(newFamilyText)}</p>
+    </div>
+  `);
+
+  cards.push(`
+    <div class="card">
+      <h2>헌금 안내</h2>
+      <p>${escapeHtml(offeringText)}</p>
+    </div>
+  `);
+
+  document.getElementById('cards').innerHTML =
+    cards.join('');
+}
+
+function renderServices(services){
+  document.getElementById('services').innerHTML =
+    (services || []).map(s => `
+      <div class="service">
+        <div>
+          <b>${escapeHtml(s.title)}</b>
+          <span>${escapeHtml(s.department || '전체')}</span>
+        </div>
+        <span>${escapeHtml(s.service_date)} ${escapeHtml(s.service_time || '')}</span>
+      </div>
+    `).join('') || '<p>표시할 예배 정보가 없습니다.</p>';
+}
 
 async function loadHome(){
   if(!church){
@@ -168,31 +523,16 @@ async function loadHome(){
     document.getElementById('churchCode').textContent =
       '교회코드 ' + data.church.slug;
 
-    document.getElementById('cards').innerHTML =
-      data.cards.map(card => `
-        <div class="card">
-          <h2>${card.title}</h2>
-          <p>${card.body}</p>
-        </div>
-      `).join('');
-
-    document.getElementById('services').innerHTML =
-      (data.services || []).map(s => `
-        <div class="service">
-          <div>
-            <b>${s.title}</b>
-            <span>${s.department || '전체'}</span>
-          </div>
-          <span>${s.service_date} ${s.service_time || ''}</span>
-        </div>
-      `).join('') || '<p>표시할 예배 정보가 없습니다.</p>';
+    renderCheckinBox(data.services);
+    renderCards(data);
+    renderServices(data.services);
 
   }catch(e){
     document.getElementById('churchName').textContent =
       '교회 홈 오류';
 
     document.getElementById('cards').innerHTML =
-      `<div class="card"><h2>안내</h2><p>${e.message}</p></div>`;
+      `<div class="error-card">${escapeHtml(e.message)}</div>`;
   }
 }
 
