@@ -3,13 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>출석체크</title>
+<title>Glory Check 출석체크</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
-
+*{box-sizing:border-box}
 body{
   margin:0;
   min-height:100vh;
@@ -21,63 +18,63 @@ body{
   padding:18px;
   color:#111827;
 }
-
 .card{
   width:100%;
   max-width:430px;
   background:#fff;
   border:1px solid #e5e7eb;
-  border-radius:26px;
+  border-radius:28px;
   padding:26px;
   box-shadow:0 24px 60px rgba(15,23,42,.08);
 }
-
 .brand{
-  font-weight:900;
+  font-weight:1000;
   color:#2563eb;
   margin-bottom:12px;
-  letter-spacing:.04em;
+  letter-spacing:.08em;
 }
-
 h1{
-  font-size:28px;
+  font-size:29px;
   margin:0 0 8px;
+  letter-spacing:-.04em;
 }
-
 p{
   color:#6b7280;
   line-height:1.55;
 }
-
-input,
-button{
+input,button{
   width:100%;
   font:inherit;
 }
-
 input{
   padding:16px;
   border:1px solid #d1d5db;
   border-radius:15px;
   margin:8px 0;
 }
-
+input:focus{
+  outline:none;
+  border-color:#2563eb;
+  box-shadow:0 0 0 4px rgba(37,99,235,.08);
+}
 button{
   padding:16px;
   border:0;
   border-radius:15px;
   background:#2563eb;
   color:#fff;
-  font-weight:900;
+  font-weight:1000;
   margin-top:10px;
   cursor:pointer;
 }
-
+button.secondary{
+  background:#eef2ff;
+  color:#1d4ed8;
+}
 button:disabled{
   opacity:.6;
   cursor:not-allowed;
 }
-
 .notice{
   background:#f8fafc;
   border-radius:15px;
@@ -86,16 +83,13 @@ button:disabled{
   font-size:14px;
   color:#374151;
 }
-
 .success{
   text-align:center;
   display:none;
 }
-
 .success .icon{
-  font-size:54px;
+  font-size:56px;
 }
-
 .error{
   display:none;
   background:#fef2f2;
@@ -107,12 +101,21 @@ button:disabled{
   font-size:14px;
   line-height:1.5;
 }
-
 .footer{
   margin-top:16px;
   text-align:center;
   color:#9ca3af;
   font-size:12px;
+}
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#1d4ed8;
+  font-weight:900;
+  font-size:12px;
+  margin-top:8px;
 }
 </style>
 </head>
@@ -121,23 +124,20 @@ button:disabled{
 
 <div class="card">
   <div id="formBox">
-    <div class="brand">CHURCH CHECK-IN</div>
+    <div class="brand">GLORY CHECK</div>
 
     <h1>출석체크</h1>
 
     <p>
       이름과 휴대폰 번호 뒤 4자리를 입력해주세요.
+      등록되지 않은 분은 새가족으로 자동 등록됩니다.
     </p>
 
     <div class="notice">
-      입력한 정보는 출석 확인 목적으로만 사용됩니다.
+      입력한 정보는 출석 확인과 새가족 안내 목적으로만 사용됩니다.
     </div>
 
-    <input
-      id="name"
-      placeholder="이름"
-      autocomplete="name"
-    >
+    <input id="name" placeholder="이름" autocomplete="name">
 
     <input
       id="phoneLast4"
@@ -148,7 +148,7 @@ button:disabled{
 
     <input
       id="department"
-      placeholder="부서 선택 입력 예: 청년부"
+      placeholder="부서 선택 입력 예: 청년부 / 장년부 / 새가족"
     >
 
     <button id="submitBtn" onclick="checkin()">
@@ -158,7 +158,7 @@ button:disabled{
     <div id="errorBox" class="error"></div>
 
     <div class="footer">
-      출석 확인을 위한 최소 정보만 입력합니다.
+      Glory Check · Church Attendance & Care
     </div>
   </div>
 
@@ -171,14 +171,25 @@ button:disabled{
       좋은 예배 되세요.
     </p>
 
+    <div id="newBadge" class="badge" style="display:none;">
+      새가족으로 등록되었습니다
+    </div>
+
+    <button class="secondary" onclick="goHome()">
+      교회 홈으로 이동
+    </button>
+
     <div class="footer">
-      이미 출석이 저장되었습니다.
+      잠시 후 교회 홈으로 이동합니다.
     </div>
   </div>
 </div>
 
 <script>
-const token = new URLSearchParams(location.search).get('token');
+const token =
+  new URLSearchParams(location.search).get('token');
+
+let homeUrl = '/home.html';
 
 function showError(message){
   const box = document.getElementById('errorBox');
@@ -190,6 +201,10 @@ function clearError(){
   const box = document.getElementById('errorBox');
   box.textContent = '';
   box.style.display = 'none';
+}
+
+function goHome(){
+  location.href = homeUrl;
 }
 
 async function checkin(){
@@ -239,7 +254,8 @@ async function checkin(){
       })
     });
 
-    const data = await res.json().catch(() => ({}));
+    const data =
+      await res.json().catch(() => ({}));
 
     if(!res.ok){
       showError(data.error || '출석체크에 실패했습니다.');
@@ -248,11 +264,24 @@ async function checkin(){
       return;
     }
 
+    if(data.church?.slug){
+      homeUrl =
+        `/home.html?church=${encodeURIComponent(data.church.slug)}`;
+    }
+
     document.getElementById('formBox').style.display = 'none';
     document.getElementById('successBox').style.display = 'block';
 
     document.getElementById('successText').innerHTML =
       `${data.service.title}<br>${data.member.name}님, 좋은 예배 되세요.`;
+
+    if(data.is_new_member){
+      document.getElementById('newBadge').style.display = 'inline-block';
+    }
+
+    setTimeout(() => {
+      location.href = homeUrl;
+    }, 1800);
 
   }catch(error){
     showError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
