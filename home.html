@@ -1,400 +1,49 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glory Check 교회 홈</title>
+function getYoutubeId(value){
+  const raw = String(value || '').trim();
 
-<style>
-*{box-sizing:border-box}
+  if(!raw) return '';
 
-html,
-body{
-  width:100%;
-  max-width:100%;
-  overflow-x:hidden;
-}
-
-body{
-  margin:0;
-  min-height:100vh;
-  background:#f4f7fb;
-  color:#111827;
-  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
-}
-
-.wrap{
-  width:100%;
-  max-width:960px;
-  margin:0 auto;
-  padding:20px;
-}
-
-.hero{
-  background:linear-gradient(135deg,#0f172a,#1d4ed8);
-  color:#fff;
-  border-radius:32px;
-  padding:30px;
-  box-shadow:0 24px 70px rgba(15,23,42,.18);
-}
-
-.brand{
-  font-weight:1000;
-  letter-spacing:.09em;
-  color:#bfdbfe;
-  font-size:13px;
-}
-
-h1{
-  margin:14px 0 8px;
-  font-size:36px;
-  letter-spacing:-.055em;
-}
-
-.hero p{
-  color:#dbeafe;
-  line-height:1.65;
-  margin:0;
-}
-
-.badge{
-  display:inline-block;
-  margin-top:16px;
-  padding:7px 11px;
-  background:rgba(255,255,255,.14);
-  border:1px solid rgba(255,255,255,.18);
-  color:#fff;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-}
-
-.checkin-box{
-  display:none;
-  margin-top:18px;
-  background:#fff;
-  border:1px solid #dbeafe;
-  border-radius:24px;
-  padding:20px;
-  box-shadow:0 14px 34px rgba(15,23,42,.06);
-}
-
-.checkin-box h2{
-  margin:0 0 8px;
-  font-size:22px;
-  letter-spacing:-.035em;
-}
-
-.checkin-box p{
-  margin:0;
-  color:#64748b;
-  line-height:1.55;
-}
-
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:auto;
-  min-height:44px;
-  padding:12px 15px;
-  border:0;
-  border-radius:15px;
-  background:#2563eb;
-  color:#fff;
-  font:inherit;
-  font-weight:1000;
-  text-decoration:none;
-  cursor:pointer;
-  margin-top:14px;
-}
-
-.btn.light{
-  background:#eef2ff;
-  color:#1d4ed8;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-  margin-top:18px;
-}
-
-.card{
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius:24px;
-  padding:20px;
-  box-shadow:0 12px 30px rgba(15,23,42,.045);
-}
-
-.card h2{
-  margin:0 0 10px;
-  font-size:18px;
-  letter-spacing:-.025em;
-}
-
-.card p{
-  margin:0;
-  color:#64748b;
-  line-height:1.58;
-  white-space:pre-line;
-}
-
-.section{
-  margin-top:18px;
-}
-
-.video-card{
-  grid-column:1/-1;
-}
-
-.video-wrap{
-  position:relative;
-  width:100%;
-  padding-top:56.25%;
-  border-radius:18px;
-  overflow:hidden;
-  background:#000;
-  margin-top:12px;
-}
-
-.video-wrap iframe{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:0;
-}
-
-.link-box{
-  margin-top:12px;
-  padding:13px;
-  background:#f8fafc;
-  border:1px dashed #cbd5e1;
-  border-radius:16px;
-  color:#475569;
-  font-size:14px;
-  line-height:1.5;
-  word-break:break-all;
-}
-
-.link-box a{
-  color:#1d4ed8;
-  font-weight:900;
-  text-decoration:none;
-}
-
-.service{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:14px 0;
-  border-bottom:1px solid #e5e7eb;
-}
-
-.service:last-child{
-  border-bottom:0;
-}
-
-.service b{
-  display:block;
-}
-
-.service span{
-  color:#64748b;
-  font-size:13px;
-}
-
-.footer{
-  text-align:center;
-  color:#94a3b8;
-  font-size:12px;
-  margin:24px 0 8px;
-}
-
-.error-card{
-  background:#fff;
-  border:1px solid #fecaca;
-  color:#991b1b;
-  border-radius:24px;
-  padding:20px;
-  margin-top:18px;
-}
-
-@media(max-width:720px){
-  .wrap{
-    padding:14px;
+  if(!raw.includes('youtube') && !raw.includes('youtu.be') && !raw.includes('/')){
+    return raw;
   }
 
-  .hero{
-    border-radius:26px;
-    padding:24px;
+  try{
+    const url = new URL(raw);
+
+    if(url.hostname.includes('youtu.be')){
+      return url.pathname.replace('/','').split('?')[0];
+    }
+
+    if(url.hostname.includes('youtube.com')){
+      if(url.searchParams.get('v')){
+        return url.searchParams.get('v');
+      }
+
+      if(url.pathname.includes('/shorts/')){
+        return url.pathname.split('/shorts/')[1]?.split('/')[0] || '';
+      }
+
+      if(url.pathname.includes('/embed/')){
+        return url.pathname.split('/embed/')[1]?.split('/')[0] || '';
+      }
+    }
+  }catch(e){
+    return raw;
   }
 
-  h1{
-    font-size:31px;
-  }
-
-  .grid{
-    grid-template-columns:1fr;
-  }
-
-  .card{
-    border-radius:20px;
-    padding:17px;
-  }
-
-  .service{
-    display:block;
-  }
-
-  .service span{
-    display:block;
-    margin-top:4px;
-  }
-
-  .btn{
-    width:100%;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<div class="wrap">
-  <section class="hero">
-    <div class="brand">GLORY CHECK</div>
-
-    <h1 id="churchName">교회 홈</h1>
-
-    <p>
-      출석이 확인되었습니다. 오늘의 예배와 교회 안내를 확인해주세요.
-    </p>
-
-    <span class="badge" id="churchCode">교회코드</span>
-  </section>
-
-  <section class="checkin-box" id="checkinBox">
-    <h2 id="checkinTitle">출석체크가 열렸습니다</h2>
-    <p id="checkinText">
-      잠시 후 출석체크 화면으로 이동합니다.
-    </p>
-    <button class="btn" id="checkinBtn">출석체크 하기</button>
-  </section>
-
-  <section class="grid" id="cards"></section>
-
-  <section class="card section">
-    <h2>최근 예배 안내</h2>
-    <div id="services"></div>
-  </section>
-
-  <div class="footer">
-    Glory Check · Church Attendance & Care System
-  </div>
-</div>
-
-<script>
-const church =
-  new URLSearchParams(location.search).get('church');
-
-function escapeHtml(value){
-  return String(value || '')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
-
-
-function getCheckinService(services){
-  const now = new Date();
-
-  return (services || []).find(s => {
-    if(!s.token) return false;
-
-    const start =
-      s.check_start_at
-        ? new Date(s.check_start_at)
-        : new Date(`${s.service_date}T${s.service_time || '00:00'}`);
-
-    const openAt =
-      new Date(start.getTime() - 10 * 60 * 1000);
-
-    const end =
-      s.check_end_at
-        ? new Date(s.check_end_at)
-        : new Date(start.getTime() + 3 * 60 * 60 * 1000);
-
-    return now >= openAt && now <= end;
-  });
-}
-
-function renderCheckinBox(services){
-  const service = getCheckinService(services);
-
-  if(!service) return;
-
-  const checkinUrl =
-    `/check.html?token=${encodeURIComponent(service.token)}`;
-
-  document.getElementById('checkinBox').style.display = 'block';
-  document.getElementById('checkinTitle').textContent =
-    `${service.title} 출석체크가 열렸습니다.`;
-
-  document.getElementById('checkinText').textContent =
-    '현장에 계신 분은 출석체크를 진행해주세요. 잠시 후 자동으로 이동합니다.';
-
-  document.getElementById('checkinBtn').onclick = function(){
-    location.href = checkinUrl;
-  };
-
-  setTimeout(() => {
-    location.href = checkinUrl;
-  }, 3000);
+  return '';
 }
 
 function renderCards(data){
   const home = data.home || {};
-const rawYoutube =
-  String(home.sermon_link || '').trim();
 
-let youtubeId = rawYoutube;
+  const youtubeId = getYoutubeId(home.sermon_link);
 
-if(rawYoutube.includes('youtube.com/watch')){
-  try{
-    youtubeId = new URL(rawYoutube).searchParams.get('v') || '';
-  }catch(e){}
-}
+  const sermonEmbed =
+    youtubeId
+      ? `https://www.youtube.com/embed/${youtubeId}`
+      : '';
 
-if(rawYoutube.includes('youtu.be/')){
-  try{
-    youtubeId = new URL(rawYoutube).pathname.replace('/','');
-  }catch(e){}
-}
-
-if(rawYoutube.includes('/shorts/')){
-  try{
-    youtubeId = new URL(rawYoutube).pathname.split('/shorts/')[1]?.split('/')[0] || '';
-  }catch(e){}
-}
-
-youtubeId =
-  youtubeId
-    .replace('https://www.youtube.com/embed/','')
-    .replace('https://youtube.com/embed/','')
-    .split('&')[0]
-    .split('?')[0]
-    .trim();
-
-const sermonEmbed =
-  youtubeId
-    ? `https://www.youtube.com/embed/${youtubeId}`
-    : '';
   const noticeTitle =
     home.notice_title || '오늘의 안내';
 
@@ -405,7 +54,7 @@ const sermonEmbed =
     home.sermon_title || '이번 주 말씀';
 
   const sermonBody =
-    home.sermon_link
+    youtubeId
       ? '아래에서 이번 주 말씀 영상을 바로 확인할 수 있습니다.'
       : '설교 영상 또는 말씀 링크가 준비 중입니다.';
 
@@ -437,22 +86,14 @@ const sermonEmbed =
           ? `
             <div class="video-wrap">
               <iframe
-                src="${escapeHtml(sermonEmbed)}"
+                src="${sermonEmbed}"
                 title="YouTube video player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
               ></iframe>
             </div>
           `
-          : home.sermon_link
-            ? `
-              <div class="link-box">
-                <a href="${escapeHtml(home.sermon_link)}" target="_blank" rel="noopener">
-                  설교 링크 열기
-                </a>
-              </div>
-            `
-            : ''
+          : ''
       }
     </div>
   `);
@@ -488,59 +129,3 @@ const sermonEmbed =
   document.getElementById('cards').innerHTML =
     cards.join('');
 }
-
-function renderServices(services){
-  document.getElementById('services').innerHTML =
-    (services || []).map(s => `
-      <div class="service">
-        <div>
-          <b>${escapeHtml(s.title)}</b>
-          <span>${escapeHtml(s.department || '전체')}</span>
-        </div>
-        <span>${escapeHtml(s.service_date)} ${escapeHtml(s.service_time || '')}</span>
-      </div>
-    `).join('') || '<p>표시할 예배 정보가 없습니다.</p>';
-}
-
-async function loadHome(){
-  if(!church){
-    document.getElementById('churchName').textContent =
-      '교회 정보를 찾을 수 없습니다.';
-    return;
-  }
-
-  try{
-    const res =
-      await fetch('/api/public-home?church=' + encodeURIComponent(church));
-
-    const data =
-      await res.json();
-
-    if(!res.ok){
-      throw new Error(data.error || '교회 홈을 불러오지 못했습니다.');
-    }
-
-    document.getElementById('churchName').textContent =
-      data.church.name;
-
-    document.getElementById('churchCode').textContent =
-      '교회코드 ' + data.church.slug;
-
-    renderCheckinBox(data.services);
-    renderCards(data);
-    renderServices(data.services);
-
-  }catch(e){
-    document.getElementById('churchName').textContent =
-      '교회 홈 오류';
-
-    document.getElementById('cards').innerHTML =
-      `<div class="error-card">${escapeHtml(e.message)}</div>`;
-  }
-}
-
-loadHome();
-</script>
-
-</body>
-</html>
