@@ -4,6 +4,29 @@ import {
   parseBody
 } from './_supabase.js';
 
+function toNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function distanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = deg => deg * Math.PI / 180;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+
+  return Math.round(
+    R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  );
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -18,6 +41,9 @@ export default async function handler(req, res) {
   const name = safeText(body.name);
   const phone_last4 = safeText(body.phone_last4);
   const department = safeText(body.department) || '새가족';
+
+  const userLat = toNumber(body.latitude);
+  const userLng = toNumber(body.longitude);
 
   if (!token || !name || !/^\d{4}$/.test(phone_last4)) {
     return res.status(400).json({
@@ -46,7 +72,7 @@ export default async function handler(req, res) {
     error: churchError
   } = await supabase
     .from('churches')
-    .select('id, name, slug, status, theme_color, logo_url')
+    .select('id, name, slug, status, theme_color, logo_url, latitude, longitude, checkin_radius_m')
     .eq('id', service.church_id)
     .single();
 
@@ -74,6 +100,33 @@ export default async function handler(req, res) {
     return res.status(403).json({
       error:'출석체크 시간이 종료되었습니다.'
     });
+  }
+
+  const churchLat = toNumber(church.latitude);
+  const churchLng = toNumber(church.longitude);
+  const radius = Number(church.checkin_radius_m || 150);
+
+  let distance = null;
+
+  if (churchLat !== null && churchLng !== null) {
+    if (userLat === null || userLng === null) {
+      return res.status(403).json({
+        error:'현장 출석 확인을 위해 위치 권한이 필요합니다.'
+      });
+    }
+
+    distance = distanceMeters(
+      churchLat,
+      churchLng,
+      userLat,
+      userLng
+    );
+
+    if (distance > radius) {
+      return res.status(403).json({
+        error:`교회 현장에서만 출석체크할 수 있습니다. 현재 약 ${distance}m 떨어져 있습니다.`
+      });
+    }
   }
 
   let member = null;
@@ -147,7 +200,10 @@ export default async function handler(req, res) {
       service_id: service.id,
       status: 'present',
       check_method: isNewMember ? 'qr_new_member' : 'qr',
-      checked_at: new Date().toISOString()
+      checked_at: new Date().toISOString(),
+      checkin_latitude: userLat,
+      checkin_longitude: userLng,
+      checkin_distance_m: distance
     }, {
       onConflict:'member_id,service_id'
     })
@@ -174,6 +230,7 @@ export default async function handler(req, res) {
   res.status(200).json({
     ok:true,
     is_new_member: isNewMember,
+    distance_m: distance,
 
     church:{
       id: church.id,
