@@ -24,7 +24,10 @@ export default async function handler(req, res) {
 
   const churchId = auth.profile.church_id;
 
-  const body = req.body || {};
+  const body =
+    typeof req.body === 'string'
+      ? JSON.parse(req.body)
+      : (req.body || {});
 
   const payload = {
     church_id: churchId,
@@ -41,10 +44,10 @@ export default async function handler(req, res) {
 
   if (
     !payload.name ||
-    !/^\\d{4}$/.test(payload.phone_last4)
+    !/^\d{4}$/.test(payload.phone_last4)
   ) {
     return res.status(400).json({
-      error:'이름과 휴대폰 뒤 4자리가 필요합니다.'
+      error: '이름과 휴대폰 뒤 4자리가 필요합니다.'
     });
   }
 
