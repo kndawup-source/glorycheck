@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glory Check 교회 홈</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:#f3f6fb;
+  color:#111827;
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
+}
+.wrap{
+  max-width:920px;
+  margin:0 auto;
+  padding:20px;
+}
+.hero{
+  background:linear-gradient(135deg,#0f172a,#1d4ed8);
+  color:#fff;
+  border-radius:30px;
+  padding:28px;
+  box-shadow:0 24px 70px rgba(15,23,42,.18);
+}
+.brand{
+  font-weight:1000;
+  letter-spacing:.08em;
+  color:#bfdbfe;
+  font-size:13px;
+}
+h1{
+  margin:14px 0 8px;
+  font-size:34px;
+  letter-spacing:-.05em;
+}
+.hero p{
+  color:#dbeafe;
+  line-height:1.6;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:18px;
+}
+.card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 14px 34px rgba(15,23,42,.05);
+}
+.card h2{
+  margin:0 0 10px;
+  font-size:18px;
+}
+.card p{
+  margin:0;
+  color:#64748b;
+  line-height:1.55;
+}
+.section{
+  margin-top:18px;
+}
+.service{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 0;
+  border-bottom:1px solid #e5e7eb;
+}
+.service:last-child{
+  border-bottom:0;
+}
+.service b{
+  display:block;
+}
+.service span{
+  color:#64748b;
+  font-size:13px;
+}
+.badge{
+  display:inline-block;
+  padding:7px 11px;
+  background:#eef2ff;
+  color:#1d4ed8;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+}
+.footer{
+  text-align:center;
+  color:#94a3b8;
+  font-size:12px;
+  margin:24px 0 8px;
+}
+@media(max-width:720px){
+  .wrap{padding:14px}
+  .grid{grid-template-columns:1fr}
+  h1{font-size:30px}
+  .hero{border-radius:24px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="brand">GLORY CHECK</div>
+    <h1 id="churchName">교회 홈</h1>
+    <p>
+      출석이 확인되었습니다. 오늘의 예배와 교회 안내를 확인해주세요.
+    </p>
+    <span class="badge" id="churchCode">교회코드</span>
+  </section>
+
+  <section class="grid" id="cards"></section>
+
+  <section class="card section">
+    <h2>최근 예배 안내</h2>
+    <div id="services"></div>
+  </section>
+
+  <div class="footer">
+    Glory Check · Church Attendance & Care System
+  </div>
+</div>
+
+<script>
+const church =
+  new URLSearchParams(location.search).get('church');
+
+async function loadHome(){
+  if(!church){
+    document.getElementById('churchName').textContent =
+      '교회 정보를 찾을 수 없습니다.';
+    return;
+  }
+
+  try{
+    const res =
+      await fetch('/api/public-home?church=' + encodeURIComponent(church));
+
+    const data =
+      await res.json();
+
+    if(!res.ok){
+      throw new Error(data.error || '교회 홈을 불러오지 못했습니다.');
+    }
+
+    document.getElementById('churchName').textContent =
+      data.church.name;
+
+    document.getElementById('churchCode').textContent =
+      '교회코드 ' + data.church.slug;
+
+    document.getElementById('cards').innerHTML =
+      data.cards.map(card => `
+        <div class="card">
+          <h2>${card.title}</h2>
+          <p>${card.body}</p>
+        </div>
+      `).join('');
+
+    document.getElementById('services').innerHTML =
+      (data.services || []).map(s => `
+        <div class="service">
+          <div>
+            <b>${s.title}</b>
+            <span>${s.department || '전체'}</span>
+          </div>
+          <span>${s.service_date} ${s.service_time || ''}</span>
+        </div>
+      `).join('') || '<p>표시할 예배 정보가 없습니다.</p>';
+
+  }catch(e){
+    document.getElementById('churchName').textContent =
+      '교회 홈 오류';
+
+    document.getElementById('cards').innerHTML =
+      `<div class="card"><h2>안내</h2><p>${e.message}</p></div>`;
+  }
+}
+
+loadHome();
+</script>
+
+</body>
+</html>
