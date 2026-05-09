@@ -11,7 +11,9 @@ body{
   margin:0;
   min-height:100vh;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
-  background:linear-gradient(160deg,#eef2ff,#f8fafc);
+  background:
+    radial-gradient(circle at top,rgba(37,99,235,.16),transparent 36%),
+    linear-gradient(160deg,#eef2ff,#f8fafc);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -23,24 +25,25 @@ body{
   max-width:430px;
   background:#fff;
   border:1px solid #e5e7eb;
-  border-radius:28px;
-  padding:26px;
-  box-shadow:0 24px 60px rgba(15,23,42,.08);
+  border-radius:30px;
+  padding:28px;
+  box-shadow:0 24px 70px rgba(15,23,42,.10);
 }
 .brand{
   font-weight:1000;
   color:#2563eb;
   margin-bottom:12px;
-  letter-spacing:.08em;
+  letter-spacing:.09em;
+  font-size:13px;
 }
 h1{
-  font-size:29px;
+  font-size:30px;
   margin:0 0 8px;
-  letter-spacing:-.04em;
+  letter-spacing:-.05em;
 }
 p{
-  color:#6b7280;
-  line-height:1.55;
+  color:#64748b;
+  line-height:1.6;
 }
 input,button{
   width:100%;
@@ -48,19 +51,19 @@ input,button{
 }
 input{
   padding:16px;
-  border:1px solid #d1d5db;
-  border-radius:15px;
+  border:1px solid #dbe3ef;
+  border-radius:16px;
   margin:8px 0;
+  outline:none;
 }
 input:focus{
-  outline:none;
   border-color:#2563eb;
   box-shadow:0 0 0 4px rgba(37,99,235,.08);
 }
 button{
   padding:16px;
   border:0;
-  border-radius:15px;
+  border-radius:16px;
   background:#2563eb;
   color:#fff;
   font-weight:1000;
@@ -77,18 +80,20 @@ button:disabled{
 }
 .notice{
   background:#f8fafc;
-  border-radius:15px;
+  border:1px dashed #cbd5e1;
+  border-radius:16px;
   padding:13px;
   margin:14px 0;
   font-size:14px;
   color:#374151;
+  line-height:1.55;
 }
 .success{
   text-align:center;
   display:none;
 }
 .success .icon{
-  font-size:56px;
+  font-size:58px;
 }
 .error{
   display:none;
@@ -109,13 +114,13 @@ button:disabled{
 }
 .badge{
   display:inline-block;
-  padding:6px 10px;
+  padding:7px 11px;
   border-radius:999px;
   background:#eef2ff;
   color:#1d4ed8;
   font-weight:900;
   font-size:12px;
-  margin-top:8px;
+  margin:8px 0 4px;
 }
 </style>
 </head>
@@ -148,7 +153,7 @@ button:disabled{
 
     <input
       id="department"
-      placeholder="부서 선택 입력 예: 청년부 / 장년부 / 새가족"
+      placeholder="부서 예: 청년부 / 장년부 / 새가족"
     >
 
     <button id="submitBtn" onclick="checkin()">
