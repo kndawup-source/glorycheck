@@ -529,6 +529,28 @@ tr:last-child td{border-bottom:0}
         </table>
       </div>
     </section>
+    <section class="card" id="homeContent">
+  <div class="card-head">
+    <div>
+      <h2>교회 홈 관리</h2>
+      <small>출석 완료 후 교인이 보게 되는 홈 화면 내용을 수정합니다.</small>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <input id="homeNoticeTitle" placeholder="공지 제목 예: 이번 주 교회소식">
+    <input id="homeSermonTitle" placeholder="설교 제목 예: 이번 주 말씀">
+
+    <input id="homeSermonLink" class="full" placeholder="설교 영상 링크">
+    <input id="homeBulletinLink" class="full" placeholder="주보 PDF/이미지 링크">
+
+    <input id="homeNoticeBody" class="full" placeholder="공지 내용">
+    <input id="homeNewFamilyText" class="full" placeholder="새가족 안내 문구">
+    <input id="homeOfferingText" class="full" placeholder="헌금 안내 문구">
+  </div>
+
+  <button class="btn" onclick="saveHomeContent()">교회 홈 저장</button>
+</section>
 
     <section class="card" id="care">
       <div class="card-head">
@@ -951,6 +973,28 @@ window.downloadCSV = async function(serviceId = ''){
   }
 }
 
+window.saveHomeContent = async function(){
+  try{
+    await api('/api/save-home-content',{
+      method:'POST',
+      body:JSON.stringify({
+        notice_title:$('homeNoticeTitle').value,
+        notice_body:$('homeNoticeBody').value,
+        sermon_title:$('homeSermonTitle').value,
+        sermon_link:$('homeSermonLink').value,
+        bulletin_link:$('homeBulletinLink').value,
+        new_family_text:$('homeNewFamilyText').value,
+        offering_text:$('homeOfferingText').value
+      })
+    });
+
+    alert('교회 홈 내용이 저장되었습니다.');
+
+  }catch(e){
+    alert(e.message);
+  }
+}
+  
 init();
 </script>
 </body>
