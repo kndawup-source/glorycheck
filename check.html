@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>출석체크</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
+  background:linear-gradient(160deg,#eef2ff,#f8fafc);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  color:#111827;
+}
+
+.card{
+  width:100%;
+  max-width:430px;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 24px 60px rgba(15,23,42,.08);
+}
+
+.brand{
+  font-weight:900;
+  color:#2563eb;
+  margin-bottom:12px;
+  letter-spacing:.04em;
+}
+
+h1{
+  font-size:28px;
+  margin:0 0 8px;
+}
+
+p{
+  color:#6b7280;
+  line-height:1.55;
+}
+
+input,
+button{
+  width:100%;
+  font:inherit;
+}
+
+input{
+  padding:16px;
+  border:1px solid #d1d5db;
+  border-radius:15px;
+  margin:8px 0;
+}
+
+button{
+  padding:16px;
+  border:0;
+  border-radius:15px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:900;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.notice{
+  background:#f8fafc;
+  border-radius:15px;
+  padding:13px;
+  margin:14px 0;
+  font-size:14px;
+  color:#374151;
+}
+
+.success{
+  text-align:center;
+  display:none;
+}
+
+.success .icon{
+  font-size:54px;
+}
+
+.error{
+  display:none;
+  background:#fef2f2;
+  color:#991b1b;
+  border:1px solid #fecaca;
+  border-radius:14px;
+  padding:12px;
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.footer{
+  margin-top:16px;
+  text-align:center;
+  color:#9ca3af;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div id="formBox">
+    <div class="brand">CHURCH CHECK-IN</div>
+
+    <h1>출석체크</h1>
+
+    <p>
+      이름과 휴대폰 번호 뒤 4자리를 입력해주세요.
+    </p>
+
+    <div class="notice">
+      입력한 정보는 출석 확인 목적으로만 사용됩니다.
+    </div>
+
+    <input
+      id="name"
+      placeholder="이름"
+      autocomplete="name"
+    >
+
+    <input
+      id="phoneLast4"
+      placeholder="휴대폰 뒤 4자리"
+      inputmode="numeric"
+      maxlength="4"
+    >
+
+    <input
+      id="department"
+      placeholder="부서 선택 입력 예: 청년부"
+    >
+
+    <button id="submitBtn" onclick="checkin()">
+      출석 완료하기
+    </button>
+
+    <div id="errorBox" class="error"></div>
+
+    <div class="footer">
+      출석 확인을 위한 최소 정보만 입력합니다.
+    </div>
+  </div>
+
+  <div id="successBox" class="success">
+    <div class="icon">🙏</div>
+
+    <h1>출석 확인 완료</h1>
+
+    <p id="successText">
+      좋은 예배 되세요.
+    </p>
+
+    <div class="footer">
+      이미 출석이 저장되었습니다.
+    </div>
+  </div>
+</div>
+
+<script>
+const token = new URLSearchParams(location.search).get('token');
+
+function showError(message){
+  const box = document.getElementById('errorBox');
+  box.textContent = message;
+  box.style.display = 'block';
+}
+
+function clearError(){
+  const box = document.getElementById('errorBox');
+  box.textContent = '';
+  box.style.display = 'none';
+}
+
+async function checkin(){
+  clearError();
+
+  const name =
+    document.getElementById('name').value.trim();
+
+  const phone_last4 =
+    document.getElementById('phoneLast4').value.trim();
+
+  const department =
+    document.getElementById('department').value.trim();
+
+  const btn =
+    document.getElementById('submitBtn');
+
+  if(!token){
+    showError('유효하지 않은 QR입니다. 출석 담당자에게 문의해주세요.');
+    return;
+  }
+
+  if(!name){
+    showError('이름을 입력해주세요.');
+    return;
+  }
+
+  if(!/^\\d{4}$/.test(phone_last4)){
+    showError('휴대폰 번호 뒤 4자리를 입력해주세요.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '출석 확인 중...';
+
+  try{
+    const res = await fetch('/api/checkin', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        token,
+        name,
+        phone_last4,
+        department
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if(!res.ok){
+      showError(data.error || '출석체크에 실패했습니다.');
+      btn.disabled = false;
+      btn.textContent = '출석 완료하기';
+      return;
+    }
+
+    document.getElementById('formBox').style.display = 'none';
+    document.getElementById('successBox').style.display = 'block';
+
+    document.getElementById('successText').innerHTML =
+      `${data.service.title}<br>${data.member.name}님, 좋은 예배 되세요.`;
+
+  }catch(error){
+    showError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    btn.disabled = false;
+    btn.textContent = '출석 완료하기';
+  }
+}
+</script>
+
+</body>
+</html>
