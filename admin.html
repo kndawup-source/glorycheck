@@ -7,28 +7,41 @@
 
 <style>
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
   margin:0;
-  background:#f3f6fb;
+  background:#f4f7fb;
   color:#111827;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
 }
 button,input,select{font:inherit}
-button{cursor:pointer;border:0}
+button{border:0;cursor:pointer}
+input,select{
+  width:100%;
+  border:1px solid #dbe3ef;
+  background:#fff;
+  border-radius:14px;
+  padding:13px 14px;
+  outline:none;
+}
+input:focus,select:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 4px rgba(37,99,235,.08);
+}
 
 .app{
   min-height:100vh;
   display:grid;
-  grid-template-columns:260px 1fr;
+  grid-template-columns:248px 1fr;
 }
 
 .sidebar{
-  background:#0f172a;
-  color:#fff;
-  padding:24px;
   position:sticky;
   top:0;
   height:100vh;
+  background:#0f172a;
+  color:#fff;
+  padding:24px 20px;
 }
 .logo{
   font-size:20px;
@@ -37,56 +50,54 @@ button{cursor:pointer;border:0}
 }
 .logo-sub{
   margin-top:6px;
+  font-size:12px;
   color:#94a3b8;
-  font-size:13px;
+  line-height:1.4;
 }
-.side-menu{
+.menu{
   margin-top:34px;
   display:grid;
-  gap:10px;
+  gap:8px;
 }
-.side-menu a{
+.menu a{
   text-decoration:none;
   color:#cbd5e1;
-  padding:12px 14px;
+  padding:12px 13px;
   border-radius:14px;
-  font-weight:800;
   font-size:14px;
+  font-weight:900;
 }
-.side-menu a.active,
-.side-menu a:hover{
+.menu a:hover,
+.menu a.active{
   background:#1d4ed8;
   color:#fff;
 }
-.side-footer{
+.side-bottom{
   position:absolute;
-  left:24px;
-  right:24px;
-  bottom:24px;
+  left:20px;
+  right:20px;
+  bottom:22px;
 }
-.logout{
-  width:100%;
-  padding:13px;
-  border-radius:14px;
-  background:#1e293b;
+.mobile-header{
+  display:none;
+  background:#0f172a;
   color:#fff;
-  font-weight:900;
+  padding:16px;
 }
 
 .main{
-  padding:26px;
-  max-width:1280px;
   width:100%;
+  max-width:1280px;
+  padding:24px;
 }
-
-.topbar{
+.hero{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   gap:16px;
-  margin-bottom:20px;
+  margin-bottom:16px;
 }
-.badge{
+.kicker{
   display:inline-flex;
   align-items:center;
   gap:6px;
@@ -95,17 +106,17 @@ button{cursor:pointer;border:0}
   border-radius:999px;
   padding:7px 11px;
   font-size:12px;
-  font-weight:900;
+  font-weight:1000;
 }
 h1{
   margin:10px 0 6px;
-  font-size:32px;
-  letter-spacing:-.04em;
+  font-size:31px;
+  letter-spacing:-.045em;
 }
 .desc{
   margin:0;
   color:#64748b;
-  line-height:1.5;
+  line-height:1.55;
 }
 .actions{
   display:flex;
@@ -113,85 +124,83 @@ h1{
   flex-wrap:wrap;
 }
 .btn{
-  padding:12px 15px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:11px 14px;
   border-radius:14px;
-  font-weight:900;
   background:#2563eb;
   color:#fff;
+  font-weight:1000;
+  white-space:nowrap;
 }
-.btn.dark{background:#111827}
 .btn.light{background:#eef2ff;color:#1d4ed8}
-.btn.red{background:#dc2626}
+.btn.dark{background:#111827;color:#fff}
+.btn.red{background:#dc2626;color:#fff}
+.btn.ghost{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
 
 .stats{
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  gap:14px;
-  margin-bottom:18px;
+  gap:12px;
+  margin-bottom:16px;
 }
 .stat{
   background:#fff;
   border:1px solid #e5e7eb;
   border-radius:22px;
-  padding:18px;
-  box-shadow:0 14px 34px rgba(15,23,42,.05);
+  padding:17px;
+  box-shadow:0 12px 30px rgba(15,23,42,.045);
 }
 .stat span{
+  display:block;
   color:#64748b;
-  font-size:13px;
-  font-weight:800;
+  font-size:12px;
+  font-weight:900;
 }
 .stat b{
   display:block;
-  margin-top:8px;
-  font-size:30px;
+  margin-top:7px;
+  font-size:29px;
   letter-spacing:-.04em;
 }
 
 .grid-2{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:16px;
+  gap:14px;
 }
 .card{
   background:#fff;
   border:1px solid #e5e7eb;
   border-radius:24px;
   padding:20px;
-  margin-bottom:16px;
-  box-shadow:0 14px 34px rgba(15,23,42,.05);
+  margin-bottom:14px;
+  box-shadow:0 12px 30px rgba(15,23,42,.045);
 }
 .card-head{
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:flex-start;
   gap:12px;
   margin-bottom:14px;
 }
 .card h2{
   margin:0;
   font-size:19px;
-  letter-spacing:-.02em;
+  letter-spacing:-.025em;
 }
 .card small{
+  display:block;
+  margin-top:5px;
   color:#64748b;
+  line-height:1.45;
 }
 .form-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
-}
-input,select{
-  width:100%;
-  padding:14px;
-  border:1px solid #dbe1ea;
-  border-radius:15px;
-  background:#fff;
-  outline:none;
-}
-input:focus,select:focus{
-  border-color:#2563eb;
-  box-shadow:0 0 0 4px rgba(37,99,235,.08);
 }
 .full{grid-column:1/-1}
 
@@ -200,14 +209,14 @@ input:focus,select:focus{
   gap:12px;
 }
 .service-card{
-  border:1px dashed #cbd5e1;
   background:#f8fafc;
+  border:1px dashed #cbd5e1;
   border-radius:18px;
   padding:16px;
 }
 .service-title{
-  font-weight:1000;
   font-size:16px;
+  font-weight:1000;
 }
 .service-meta{
   margin-top:6px;
@@ -219,14 +228,24 @@ input:focus,select:focus{
   padding:12px;
   background:#fff;
   border-radius:14px;
-  font-size:12px;
   color:#475569;
+  font-size:12px;
   word-break:break-all;
 }
 .row{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
+}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:900;
 }
 
 .table-wrap{
@@ -236,8 +255,8 @@ input:focus,select:focus{
 }
 table{
   width:100%;
-  border-collapse:collapse;
   min-width:760px;
+  border-collapse:collapse;
 }
 th,td{
   padding:13px 12px;
@@ -252,20 +271,7 @@ th{
   font-size:12px;
   font-weight:1000;
 }
-td{
-  color:#1f2937;
-}
-.table-wrap tr:last-child td{border-bottom:0}
-
-.tag{
-  display:inline-block;
-  padding:5px 8px;
-  border-radius:999px;
-  background:#eef2ff;
-  color:#1d4ed8;
-  font-size:12px;
-  font-weight:900;
-}
+tr:last-child td{border-bottom:0}
 
 .modal{
   position:fixed;
@@ -275,7 +281,7 @@ td{
   align-items:center;
   justify-content:center;
   padding:18px;
-  z-index:1000;
+  z-index:999;
 }
 .modal.show{display:flex}
 .modal-card{
@@ -312,37 +318,39 @@ td{
 }
 .print-only{display:none}
 
-.mobile-brand{
-  display:none;
-  background:#0f172a;
-  color:#fff;
-  padding:18px;
-}
-
-@media(max-width:980px){
+@media(max-width:1040px){
   .app{grid-template-columns:1fr}
   .sidebar{display:none}
-  .mobile-brand{display:block}
-  .main{padding:18px}
-  .topbar{display:block}
+  .mobile-header{display:block}
+  .main{padding:16px}
+  .hero{display:block}
   .actions{margin-top:14px}
   .stats{grid-template-columns:repeat(2,1fr)}
   .grid-2{grid-template-columns:1fr}
-  h1{font-size:28px}
 }
 @media(max-width:560px){
   .main{padding:14px}
+  h1{font-size:27px}
   .stats{grid-template-columns:1fr}
   .form-grid{grid-template-columns:1fr}
-  .btn{width:100%;text-align:center}
-  .row .btn{width:auto}
+  .full{grid-column:auto}
   .card{padding:16px;border-radius:20px}
+  .btn{width:100%}
+  .row .btn{width:auto}
 }
 @media print{
   body *{visibility:hidden}
   #qrModal,#qrModal *{visibility:visible}
-  #qrModal{position:fixed;inset:0;background:#fff;display:flex!important}
-  .modal-card{box-shadow:none;border:0}
+  #qrModal{
+    position:fixed;
+    inset:0;
+    background:#fff;
+    display:flex!important;
+  }
+  .modal-card{
+    box-shadow:none;
+    border:0;
+  }
   .no-print{display:none!important}
   .print-only{display:block}
 }
@@ -353,17 +361,17 @@ td{
 
 <body>
 
-<div class="mobile-brand">
+<header class="mobile-header">
   <div class="logo">GLORY CHECK</div>
   <div class="logo-sub">Church Attendance & Care System</div>
-</div>
+</header>
 
 <div class="app">
   <aside class="sidebar">
     <div class="logo">GLORY CHECK</div>
     <div class="logo-sub">Church Attendance & Care System</div>
 
-    <nav class="side-menu">
+    <nav class="menu">
       <a class="active" href="#dashboard">대시보드</a>
       <a href="#members">교인 관리</a>
       <a href="#services">예배 QR</a>
@@ -371,15 +379,15 @@ td{
       <a href="#care">미출석 케어</a>
     </nav>
 
-    <div class="side-footer">
-      <button class="logout" onclick="logout()">로그아웃</button>
+    <div class="side-bottom">
+      <button class="btn dark" style="width:100%" onclick="logout()">로그아웃</button>
     </div>
   </aside>
 
   <main class="main">
-    <section class="topbar" id="dashboard">
+    <section class="hero" id="dashboard">
       <div>
-        <div class="badge">GLORY CHECK ADMIN</div>
+        <div class="kicker">GLORY CHECK ADMIN</div>
         <h1>교회 출석 관리</h1>
         <p class="desc" id="profileText">로그인 확인 중...</p>
       </div>
@@ -403,7 +411,7 @@ td{
         <div class="card-head">
           <div>
             <h2>교인 등록 / 수정</h2>
-            <small>이름과 휴대폰 뒤 4자리만으로 출석 확인</small>
+            <small>기존 교인은 이름과 휴대폰 뒤 4자리로 출석 확인됩니다.</small>
           </div>
         </div>
 
@@ -435,7 +443,7 @@ td{
         <div class="card-head">
           <div>
             <h2>예배 QR 생성</h2>
-            <small>예배별 QR을 생성하고 인쇄/저장할 수 있습니다</small>
+            <small>예배별 QR을 생성하고 인쇄/이미지 저장할 수 있습니다.</small>
           </div>
         </div>
 
@@ -460,9 +468,10 @@ td{
       <div class="card-head">
         <div>
           <h2>예배 목록 / QR</h2>
-          <small>QR 크게 보기, 링크 복사, 예배별 CSV 다운로드</small>
+          <small>QR 보기, 링크 복사, 예배별 CSV 다운로드를 사용할 수 있습니다.</small>
         </div>
       </div>
+
       <div class="service-list" id="servicesList"></div>
     </section>
 
@@ -470,7 +479,7 @@ td{
       <div class="card-head">
         <div>
           <h2>교인 목록</h2>
-          <small>이름, 부서, 셀 기준 검색</small>
+          <small>이름, 부서, 셀 기준으로 빠르게 검색합니다.</small>
         </div>
       </div>
 
@@ -498,8 +507,9 @@ td{
       <div class="card-head">
         <div>
           <h2>최근 출석 기록</h2>
-          <small>CSV로 다운로드해 엑셀/구글시트에서 확인할 수 있습니다</small>
+          <small>CSV로 다운로드해 엑셀/구글시트에서 확인할 수 있습니다.</small>
         </div>
+
         <button class="btn dark" onclick="downloadCSV()">CSV 다운로드</button>
       </div>
 
@@ -524,7 +534,7 @@ td{
       <div class="card-head">
         <div>
           <h2>최근 4주 미출석자</h2>
-          <small>교역자와 리더가 케어할 수 있는 리스트</small>
+          <small>교역자와 리더가 케어할 수 있는 자동 리스트입니다.</small>
         </div>
       </div>
 
@@ -585,11 +595,6 @@ let state = {
   counts: {}
 };
 
-let currentQr = {
-  title:'',
-  link:''
-};
-
 const $ = id => document.getElementById(id);
 const base = location.origin;
 
@@ -632,7 +637,7 @@ window.logout = async function(){
 
 async function init(){
   if(!token()){
-    location.href='/login.html';
+    location.href = '/login.html';
     return;
   }
 
@@ -668,37 +673,36 @@ window.loadData = async function(){
 }
 
 function renderServices(){
-  $('servicesList').innerHTML = (state.services || []).map(s => {
-    const link = `${base}/check.html?token=${s.token}`;
-    const titleText = `${s.title} ${s.service_date} ${s.service_time || ''}`;
+  $('servicesList').innerHTML =
+    (state.services || []).map(s => {
+      const link = `${base}/check.html?token=${s.token}`;
+      const titleText = `${s.title} ${s.service_date} ${s.service_time || ''}`;
 
-    return `
-      <div class="service-card">
-        <div class="service-title">
-          ${s.title}
-          <span class="tag">${s.department || '전체'}</span>
+      return `
+        <div class="service-card">
+          <div class="service-title">
+            ${s.title}
+            <span class="tag">${s.department || '전체'}</span>
+          </div>
+
+          <div class="service-meta">
+            ${s.service_date} ${s.service_time || ''}
+            · 마감 ${new Date(s.check_end_at || s.token_expires_at).toLocaleString()}
+          </div>
+
+          <div class="service-link">${link}</div>
+
+          <div class="row">
+            <button class="btn" onclick='showQr(${JSON.stringify(titleText)}, ${JSON.stringify(link)})'>QR 크게 보기</button>
+            <button class="btn light" onclick="copyText('${link}')">링크 복사</button>
+            <button class="btn dark" onclick="downloadCSV('${s.id}')">이 예배 CSV</button>
+          </div>
         </div>
-
-        <div class="service-meta">
-          ${s.service_date} ${s.service_time || ''}
-          · 마감 ${new Date(s.check_end_at || s.token_expires_at).toLocaleString()}
-        </div>
-
-        <div class="service-link">${link}</div>
-
-        <div class="row">
-          <button class="btn light" onclick="copyText('${link}')">링크 복사</button>
-          <button class="btn" onclick='showQr(${JSON.stringify(titleText)}, ${JSON.stringify(link)})'>QR 크게 보기</button>
-          <button class="btn dark" onclick="downloadCSV('${s.id}')">이 예배 CSV</button>
-        </div>
-      </div>
-    `;
-  }).join('') || '<p class="desc">생성된 예배 QR이 없습니다.</p>';
+      `;
+    }).join('') || '<p class="desc">생성된 예배 QR이 없습니다.</p>';
 }
 
 window.showQr = function(title, link){
-  currentQr = { title, link };
-
   $('qrModalTitle').textContent = title;
   $('qrModalSub').textContent = '휴대폰 카메라로 스캔하면 출석체크 페이지가 열립니다.';
   $('qrModalLink').textContent = link;
@@ -710,14 +714,14 @@ window.showQr = function(title, link){
   canvas.style.display = 'block';
   img.style.display = 'none';
 
-  if (window.QRCode && window.QRCode.toCanvas) {
+  if(window.QRCode && window.QRCode.toCanvas){
     window.QRCode.toCanvas(
       canvas,
       link,
       {
-        width: 280,
-        margin: 2,
-        errorCorrectionLevel: 'M'
+        width:280,
+        margin:2,
+        errorCorrectionLevel:'M'
       },
       function(error){
         if(error){
@@ -725,7 +729,7 @@ window.showQr = function(title, link){
         }
       }
     );
-  } else {
+  }else{
     showQrImageFallback(link);
   }
 }
@@ -738,8 +742,8 @@ function showQrImageFallback(link){
   img.style.display = 'block';
 
   img.src =
-    'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data='
-    + encodeURIComponent(link);
+    'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' +
+    encodeURIComponent(link);
 }
 
 window.hideQr = function(){
@@ -762,9 +766,9 @@ window.downloadQr = function(){
 
   const a = document.createElement('a');
 
-  if (canvas.style.display !== 'none') {
+  if(canvas.style.display !== 'none'){
     a.href = canvas.toDataURL('image/png');
-  } else {
+  }else{
     a.href = img.src;
   }
 
@@ -775,28 +779,30 @@ window.downloadQr = function(){
 window.renderMembers = function(){
   const q = ($('search').value || '').toLowerCase();
 
-  const list = (state.members || []).filter(m =>
-    [m.name,m.department,m.group_name]
-      .join(' ')
-      .toLowerCase()
-      .includes(q)
-  );
+  const list =
+    (state.members || []).filter(m =>
+      [m.name,m.department,m.group_name]
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    );
 
-  $('memberBody').innerHTML = list.map(m => `
-    <tr>
-      <td><b>${m.name}</b></td>
-      <td>${m.phone_last4}</td>
-      <td>${m.department}</td>
-      <td>${m.group_name || ''}</td>
-      <td><span class="tag">${m.member_type}</span></td>
-      <td>${m.status}</td>
-      <td>
-        <button class="btn light" onclick='editMember(${JSON.stringify(m).replaceAll("'", "&#39;")})'>
-          수정
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  $('memberBody').innerHTML =
+    list.map(m => `
+      <tr>
+        <td><b>${m.name}</b></td>
+        <td>${m.phone_last4}</td>
+        <td>${m.department}</td>
+        <td>${m.group_name || ''}</td>
+        <td><span class="tag">${m.member_type}</span></td>
+        <td>${m.status}</td>
+        <td>
+          <button class="btn light" onclick='editMember(${JSON.stringify(m).replaceAll("'", "&#39;")})'>
+            수정
+          </button>
+        </td>
+      </tr>
+    `).join('');
 }
 
 window.editMember = function(m){
@@ -816,28 +822,30 @@ window.editMember = function(m){
 }
 
 function renderAttendance(){
-  $('attendanceBody').innerHTML = (state.attendance || []).map(a => `
-    <tr>
-      <td>${a.services?.service_date || ''}</td>
-      <td>${a.services?.title || ''}</td>
-      <td><b>${a.members?.name || ''}</b></td>
-      <td>${a.members?.department || ''}</td>
-      <td><span class="tag">${a.status}</span></td>
-      <td>${new Date(a.checked_at).toLocaleString()}</td>
-    </tr>
-  `).join('');
+  $('attendanceBody').innerHTML =
+    (state.attendance || []).map(a => `
+      <tr>
+        <td>${a.services?.service_date || ''}</td>
+        <td>${a.services?.title || ''}</td>
+        <td><b>${a.members?.name || ''}</b></td>
+        <td>${a.members?.department || ''}</td>
+        <td><span class="tag">${a.status}</span></td>
+        <td>${new Date(a.checked_at).toLocaleString()}</td>
+      </tr>
+    `).join('');
 }
 
 function renderAbsent(){
-  $('absentBody').innerHTML = (state.long_absent || []).map(m => `
-    <tr>
-      <td><b>${m.name}</b></td>
-      <td>${m.phone_last4}</td>
-      <td>${m.department}</td>
-      <td>${m.group_name || ''}</td>
-      <td>${m.memo || ''}</td>
-    </tr>
-  `).join('');
+  $('absentBody').innerHTML =
+    (state.long_absent || []).map(m => `
+      <tr>
+        <td><b>${m.name}</b></td>
+        <td>${m.phone_last4}</td>
+        <td>${m.department}</td>
+        <td>${m.group_name || ''}</td>
+        <td>${m.memo || ''}</td>
+      </tr>
+    `).join('');
 }
 
 window.saveMember = async function(){
@@ -909,12 +917,13 @@ window.downloadCSV = async function(serviceId = ''){
       '/api/export-csv' +
       (serviceId ? `?service_id=${serviceId}` : '');
 
-    const res = await fetch(url,{
-      method:'GET',
-      headers:{
-        'Authorization':'Bearer ' + token()
-      }
-    });
+    const res =
+      await fetch(url,{
+        method:'GET',
+        headers:{
+          'Authorization':'Bearer ' + token()
+        }
+      });
 
     if(!res.ok){
       const text = await res.text();
