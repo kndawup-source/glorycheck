@@ -4,123 +4,443 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Glory Check HQ</title>
+
 <style>
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
-  margin:0;background:#f5f7fb;color:#111827;
+  margin:0;
+  background:#f4f7fb;
+  color:#111827;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
 }
-.wrap{max-width:1180px;margin:0 auto;padding:20px}
-.card{
-  background:#fff;border:1px solid #e5e7eb;border-radius:22px;
-  padding:20px;margin-bottom:16px;box-shadow:0 14px 36px rgba(15,23,42,.05);
-}
-h1{font-size:28px;margin:0 0 8px}
-h2{font-size:18px;margin:0 0 14px}
-p{color:#64748b}
-input,select,button{font:inherit}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer}
 input,select{
-  width:100%;padding:13px;border:1px solid #d1d5db;
-  border-radius:13px;margin:5px 0 10px;
+  width:100%;
+  border:1px solid #dbe3ef;
+  background:#fff;
+  border-radius:14px;
+  padding:13px 14px;
+  outline:none;
 }
-button{
-  border:0;border-radius:13px;background:#2563eb;color:white;
-  font-weight:900;padding:12px 14px;cursor:pointer;
+input:focus,select:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 4px rgba(37,99,235,.08);
 }
-button.gray{background:#111827}
-button.light{background:#eef2ff;color:#1d4ed8}
-button.danger{background:#dc2626}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stats div{background:#f8fafc;border-radius:15px;padding:14px}
-.stats b{font-size:24px}
-table{width:100%;border-collapse:collapse}
+
+.app{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:248px 1fr;
+}
+.sidebar{
+  position:sticky;
+  top:0;
+  height:100vh;
+  background:#0f172a;
+  color:#fff;
+  padding:24px 20px;
+}
+.logo{
+  font-size:20px;
+  font-weight:1000;
+  letter-spacing:.08em;
+}
+.logo-sub{
+  margin-top:6px;
+  font-size:12px;
+  color:#94a3b8;
+  line-height:1.4;
+}
+.menu{
+  margin-top:34px;
+  display:grid;
+  gap:8px;
+}
+.menu a{
+  text-decoration:none;
+  color:#cbd5e1;
+  padding:12px 13px;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:900;
+}
+.menu a:hover,
+.menu a.active{
+  background:#1d4ed8;
+  color:#fff;
+}
+.side-bottom{
+  position:absolute;
+  left:20px;
+  right:20px;
+  bottom:22px;
+}
+.mobile-header{
+  display:none;
+  background:#0f172a;
+  color:#fff;
+  padding:16px;
+}
+
+.main{
+  width:100%;
+  max-width:1280px;
+  padding:24px;
+}
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:16px;
+}
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#e0ecff;
+  color:#1d4ed8;
+  border-radius:999px;
+  padding:7px 11px;
+  font-size:12px;
+  font-weight:1000;
+}
+h1{
+  margin:10px 0 6px;
+  font-size:31px;
+  letter-spacing:-.045em;
+}
+.desc{
+  margin:0;
+  color:#64748b;
+  line-height:1.55;
+}
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:11px 14px;
+  border-radius:14px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:1000;
+  white-space:nowrap;
+}
+.btn.light{background:#eef2ff;color:#1d4ed8}
+.btn.dark{background:#111827;color:#fff}
+.btn.red{background:#dc2626;color:#fff}
+.btn.ghost{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:16px;
+}
+.stat{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:22px;
+  padding:17px;
+  box-shadow:0 12px 30px rgba(15,23,42,.045);
+}
+.stat span{
+  display:block;
+  color:#64748b;
+  font-size:12px;
+  font-weight:900;
+}
+.stat b{
+  display:block;
+  margin-top:7px;
+  font-size:29px;
+  letter-spacing:-.04em;
+}
+
+.grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:24px;
+  padding:20px;
+  margin-bottom:14px;
+  box-shadow:0 12px 30px rgba(15,23,42,.045);
+}
+.card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:14px;
+}
+.card h2{
+  margin:0;
+  font-size:19px;
+  letter-spacing:-.025em;
+}
+.card small{
+  display:block;
+  margin-top:5px;
+  color:#64748b;
+  line-height:1.45;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.full{grid-column:1/-1}
+
+.table-wrap{
+  overflow:auto;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+}
+table{
+  width:100%;
+  min-width:900px;
+  border-collapse:collapse;
+}
 th,td{
-  border-bottom:1px solid #e5e7eb;padding:10px;text-align:left;
-  font-size:14px;vertical-align:top;
+  padding:13px 12px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  font-size:14px;
+  vertical-align:middle;
 }
-.badge{
-  display:inline-block;padding:4px 8px;border-radius:999px;
-  background:#eef2ff;color:#1d4ed8;font-size:12px;font-weight:800;
+th{
+  background:#f8fafc;
+  color:#475569;
+  font-size:12px;
+  font-weight:1000;
 }
-@media(max-width:820px){
-  .grid,.stats{grid-template-columns:1fr}
-  .wrap{padding:14px}
-  table{display:block;overflow:auto}
+tr:last-child td{border-bottom:0}
+
+.tag{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:900;
+}
+.tag.green{
+  background:#dcfce7;
+  color:#166534;
+}
+.tag.red{
+  background:#fee2e2;
+  color:#991b1b;
+}
+.tag.gray{
+  background:#f1f5f9;
+  color:#475569;
+}
+.church-name{
+  font-weight:1000;
+}
+.church-memo{
+  color:#64748b;
+  font-size:12px;
+  margin-top:4px;
+  line-height:1.4;
+}
+.notice{
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  border-radius:18px;
+  padding:16px;
+  color:#475569;
+  line-height:1.55;
+}
+.notice b{color:#111827}
+
+@media(max-width:1040px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mobile-header{display:block}
+  .main{padding:16px}
+  .hero{display:block}
+  .actions{margin-top:14px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .main{padding:14px}
+  h1{font-size:27px}
+  .stats{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .card{padding:16px;border-radius:20px}
+  .btn{width:100%}
+  .table-wrap{border-radius:16px}
 }
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>Glory Check HQ</h1>
-    <p id="profileText">슈퍼관리자 확인 중...</p>
-    <button class="gray" onclick="logout()">로그아웃</button>
-    <button class="light" onclick="loadData()">새로고침</button>
-  </div>
 
-  <div class="card">
-    <h2>전체 현황</h2>
-    <div class="stats">
-      <div>전체 교회<br><b id="totalChurches">-</b></div>
-      <div>활성 교회<br><b id="activeChurches">-</b></div>
-      <div>전체 교인<br><b id="totalMembers">-</b></div>
-      <div>출석 기록<br><b id="totalAttendance">-</b></div>
+<header class="mobile-header">
+  <div class="logo">GLORY CHECK HQ</div>
+  <div class="logo-sub">Multi Church Management Console</div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">GLORY CHECK HQ</div>
+    <div class="logo-sub">Multi Church Management Console</div>
+
+    <nav class="menu">
+      <a class="active" href="#dashboard">대시보드</a>
+      <a href="#create">교회 생성</a>
+      <a href="#churches">교회 목록</a>
+      <a href="#guide">운영 안내</a>
+    </nav>
+
+    <div class="side-bottom">
+      <button class="btn dark" style="width:100%" onclick="logout()">로그아웃</button>
     </div>
-  </div>
+  </aside>
 
-  <div class="card">
-    <h2>교회 생성</h2>
+  <main class="main">
+    <section class="hero" id="dashboard">
+      <div>
+        <div class="kicker">GLORY CHECK HQ</div>
+        <h1>교회 운영 관리</h1>
+        <p class="desc" id="profileText">슈퍼관리자 확인 중...</p>
+      </div>
 
-    <div class="grid">
-      <input id="churchName" placeholder="교회명 예: 서울은혜교회">
-      <input id="churchSlug" placeholder="교회코드 예: seoul-grace">
+      <div class="actions">
+        <button class="btn light" onclick="loadData()">새로고침</button>
+        <button class="btn dark" onclick="logout()">로그아웃</button>
+      </div>
+    </section>
 
-      <select id="churchPlan">
-        <option value="standard">Standard</option>
-        <option value="premium">Premium</option>
-        <option value="enterprise">Enterprise</option>
-      </select>
+    <section class="stats">
+      <div class="stat">
+        <span>전체 교회</span>
+        <b id="totalChurches">-</b>
+      </div>
 
-      <input id="adminName" placeholder="관리자 이름">
-      <input id="adminEmail" type="email" placeholder="관리자 이메일">
-      <input id="adminPassword" placeholder="초기 비밀번호">
-    </div>
+      <div class="stat">
+        <span>활성 교회</span>
+        <b id="activeChurches">-</b>
+      </div>
 
-    <input id="churchMemo" placeholder="영업/운영 메모">
+      <div class="stat">
+        <span>전체 교인</span>
+        <b id="totalMembers">-</b>
+      </div>
 
-    <button onclick="createChurch()">
-      교회 + 관리자 생성
-    </button>
-  </div>
+      <div class="stat">
+        <span>출석 기록</span>
+        <b id="totalAttendance">-</b>
+      </div>
+    </section>
 
-  <div class="card">
-    <h2>교회 목록</h2>
+    <section class="grid-2">
+      <div class="card" id="create">
+        <div class="card-head">
+          <div>
+            <h2>교회 생성</h2>
+            <small>영업한 교회를 등록하고 첫 관리자 계정을 자동 생성합니다.</small>
+          </div>
+        </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>교회</th>
-          <th>교회코드</th>
-          <th>플랜</th>
-          <th>상태</th>
-          <th>교인</th>
-          <th>출석기록</th>
-          <th>관리자</th>
-          <th>관리</th>
-        </tr>
-      </thead>
+        <div class="form-grid">
+          <input id="churchName" placeholder="교회명 예: 서울은혜교회">
+          <input id="churchSlug" placeholder="교회코드 예: seoul-grace">
 
-      <tbody id="churchBody"></tbody>
-    </table>
-  </div>
+          <select id="churchPlan">
+            <option value="standard">Standard</option>
+            <option value="premium">Premium</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+
+          <input id="adminName" placeholder="관리자 이름">
+          <input id="adminEmail" type="email" placeholder="관리자 이메일">
+          <input id="adminPassword" placeholder="초기 비밀번호">
+          <input id="churchMemo" class="full" placeholder="영업/운영 메모">
+        </div>
+
+        <button class="btn" onclick="createChurch()">교회 + 관리자 생성</button>
+      </div>
+
+      <div class="card" id="guide">
+        <div class="card-head">
+          <div>
+            <h2>운영 안내</h2>
+            <small>Glory Check 영업/운영 시 기본 흐름입니다.</small>
+          </div>
+        </div>
+
+        <div class="notice">
+          <b>1. 교회 생성</b><br>
+          교회코드와 첫 관리자 계정을 발급합니다.<br><br>
+
+          <b>2. 교회 관리자 로그인</b><br>
+          교회 담당자는 login.html에서 접속합니다.<br><br>
+
+          <b>3. 예배 QR 생성</b><br>
+          교회 관리자가 예배별 QR을 생성하고 교인들이 출석체크합니다.<br><br>
+
+          <b>4. HQ 관리</b><br>
+          사용 교회 현황, 교인 수, 출석 기록, 활성/중지를 관리합니다.
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="churches">
+      <div class="card-head">
+        <div>
+          <h2>교회 목록</h2>
+          <small>교회별 사용 현황과 상태를 확인합니다.</small>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>교회</th>
+              <th>교회코드</th>
+              <th>플랜</th>
+              <th>상태</th>
+              <th>교인</th>
+              <th>출석기록</th>
+              <th>관리자</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+
+          <tbody id="churchBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 const SUPABASE_URL = "https://bwbyfscpemocqudrfgcs.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3Ynlmc2NwZW1vY3F1ZHJmZ2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTkyMzgsImV4cCI6MjA5Mzg5NTIzOH0.jACzv52gOByi1se-6zA7_NmENjF2HnKDjEwdAMURn8A";
+
+const SUPABASE_ANON_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3Ynlmc2NwZW1vY3F1ZHJmZ2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMTkyMzgsImV4cCI6MjA5Mzg5NTIzOH0.jACzv52gOByi1se-6zA7_NmENjF2HnKDjEwdAMURn8A";
 
 const supabase =
   createClient(
@@ -232,6 +552,19 @@ window.loadData = async function(){
   }
 }
 
+function getStatusTag(status){
+
+  if(status === 'active'){
+    return '<span class="tag green">활성</span>';
+  }
+
+  if(status === 'paused'){
+    return '<span class="tag red">중지</span>';
+  }
+
+  return `<span class="tag gray">${status || '미지정'}</span>`;
+}
+
 function renderChurches(){
 
   $('churchBody').innerHTML =
@@ -239,33 +572,39 @@ function renderChurches(){
 
       <tr>
         <td>
-          <b>${c.name}</b><br>
-          <small>${c.memo || ''}</small>
+          <div class="church-name">${c.name}</div>
+          <div class="church-memo">${c.memo || ''}</div>
         </td>
 
         <td>${c.slug}</td>
 
         <td>
-          <span class="badge">${c.plan}</span>
+          <span class="tag">${c.plan || 'standard'}</span>
         </td>
 
-        <td>${c.status}</td>
+        <td>
+          ${getStatusTag(c.status)}
+        </td>
 
-        <td>${c.member_count}</td>
+        <td>${c.member_count || 0}</td>
 
-        <td>${c.attendance_count}</td>
+        <td>${c.attendance_count || 0}</td>
 
-        <td>${c.admin_count}</td>
+        <td>${c.admin_count || 0}</td>
 
         <td>
           ${
             c.status === 'active'
-              ? `<button class="danger" onclick="toggleChurch('${c.id}','paused')">중지</button>`
-              : `<button onclick="toggleChurch('${c.id}','active')">활성</button>`
+              ? `<button class="btn red" onclick="toggleChurch('${c.id}','paused')">중지</button>`
+              : `<button class="btn" onclick="toggleChurch('${c.id}','active')">활성</button>`
           }
         </td>
       </tr>
-    `).join('');
+    `).join('') || `
+      <tr>
+        <td colspan="8">등록된 교회가 없습니다.</td>
+      </tr>
+    `;
 }
 
 window.createChurch = async function(){
