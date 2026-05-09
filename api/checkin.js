@@ -13,17 +13,22 @@ export default async function handler(req, res) {
 
   const supabase = adminClient();
 
+  const body =
+    typeof req.body === 'string'
+      ? JSON.parse(req.body)
+      : (req.body || {});
+
   const token =
-    safeText(req.body?.token);
+    safeText(body.token);
 
   const name =
-    safeText(req.body?.name);
+    safeText(body.name);
 
   const phone_last4 =
-    safeText(req.body?.phone_last4);
+    safeText(body.phone_last4);
 
   const department =
-    safeText(req.body?.department);
+    safeText(body.department);
 
   if (
     !token ||
@@ -78,10 +83,7 @@ export default async function handler(req, res) {
     .eq('status', 'active');
 
   if (department) {
-    query = query.eq(
-      'department',
-      department
-    );
+    query = query.eq('department', department);
   }
 
   const {
@@ -144,18 +146,15 @@ export default async function handler(req, res) {
 
   res.status(200).json({
     ok:true,
-
     service:{
       title: service.title,
       service_date: service.service_date,
       service_time: service.service_time
     },
-
     member:{
       name: member.name,
       department: member.department
     },
-
     checked_at: saved.checked_at
   });
 }
