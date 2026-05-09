@@ -25,20 +25,38 @@ export default async function handler(req, res) {
     });
   }
 
-  const { data: service } = await supabase
+  const {
+    data: service,
+    error: serviceError
+  } = await supabase
     .from('services')
-    .select('*, churches(id, name, slug, status, theme_color, logo_url)')
+    .select('*')
     .eq('token', token)
     .eq('is_active', true)
     .single();
 
-  if (!service) {
+  if (serviceError || !service) {
     return res.status(404).json({
       error:'유효하지 않은 QR입니다.'
     });
   }
 
-  if (service.churches?.status === 'paused') {
+  const {
+    data: church,
+    error: churchError
+  } = await supabase
+    .from('churches')
+    .select('id, name, slug, status, theme_color, logo_url')
+    .eq('id', service.church_id)
+    .single();
+
+  if (churchError || !church) {
+    return res.status(404).json({
+      error:'교회 정보를 찾지 못했습니다.'
+    });
+  }
+
+  if (church.status === 'paused') {
     return res.status(403).json({
       error:'현재 교회 계정이 일시중지 상태입니다.'
     });
@@ -61,15 +79,16 @@ export default async function handler(req, res) {
   let member = null;
   let isNewMember = false;
 
-  let query = supabase
+  const {
+    data: matches,
+    error: matchError
+  } = await supabase
     .from('members')
     .select('*')
     .eq('church_id', service.church_id)
     .eq('name', name)
     .eq('phone_last4', phone_last4)
     .eq('status', 'active');
-
-  const { data: matches, error: matchError } = await query;
 
   if (matchError) {
     return res.status(500).json({
@@ -88,7 +107,10 @@ export default async function handler(req, res) {
   }
 
   if (!member) {
-    const { data: created, error: createError } = await supabase
+    const {
+      data: created,
+      error: createError
+    } = await supabase
       .from('members')
       .insert({
         church_id: service.church_id,
@@ -114,7 +136,10 @@ export default async function handler(req, res) {
     isNewMember = true;
   }
 
-  const { data: saved, error } = await supabase
+  const {
+    data: saved,
+    error
+  } = await supabase
     .from('attendance')
     .upsert({
       church_id: service.church_id,
@@ -151,11 +176,11 @@ export default async function handler(req, res) {
     is_new_member: isNewMember,
 
     church:{
-      id: service.churches.id,
-      name: service.churches.name,
-      slug: service.churches.slug,
-      theme_color: service.churches.theme_color,
-      logo_url: service.churches.logo_url
+      id: church.id,
+      name: church.name,
+      slug: church.slug,
+      theme_color: church.theme_color,
+      logo_url: church.logo_url
     },
 
     service:{
