@@ -42,7 +42,9 @@ input:focus,select:focus{
   box-shadow:0 0 0 4px rgba(37,99,235,.08);
 }
 
-#search{
+#search,
+#newSearch,
+#manualSearch{
   margin-bottom:14px;
 }
 
@@ -181,7 +183,7 @@ h1{
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(6,1fr);
   gap:12px;
   margin-bottom:16px;
 }
@@ -297,6 +299,28 @@ h1{
   gap:8px;
 }
 
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+}
+
+.tab{
+  min-height:38px;
+  padding:9px 13px;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#475569;
+  font-size:13px;
+  font-weight:1000;
+}
+
+.tab.active{
+  background:#2563eb;
+  color:#fff;
+}
+
 .tag{
   display:inline-flex;
   align-items:center;
@@ -338,6 +362,34 @@ th{
 }
 
 tr:last-child td{border-bottom:0}
+
+.manual-result{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+
+.manual-card{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:12px;
+  background:#f8fafc;
+}
+
+.manual-card b{
+  display:block;
+}
+
+.manual-card span{
+  display:block;
+  margin-top:3px;
+  color:#64748b;
+  font-size:12px;
+}
 
 .modal{
   position:fixed;
@@ -391,6 +443,10 @@ tr:last-child td{border-bottom:0}
 
 .print-only{display:none}
 
+.bottom-nav{
+  display:none;
+}
+
 @media(max-width:1040px){
   .app{
     grid-template-columns:1fr;
@@ -417,7 +473,7 @@ tr:last-child td{border-bottom:0}
   }
 
   .stats{
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(3,1fr);
   }
 
   .grid-2{
@@ -426,6 +482,10 @@ tr:last-child td{border-bottom:0}
 }
 
 @media(max-width:720px){
+  body{
+    padding-bottom:82px;
+  }
+
   .main{
     padding:12px;
   }
@@ -512,8 +572,19 @@ tr:last-child td{border-bottom:0}
     width:100%;
   }
 
-  #search{
+  #search,
+  #newSearch,
+  #manualSearch{
     margin-bottom:16px;
+  }
+
+  .tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .tab{
+    width:100%;
   }
 
   .table-wrap{
@@ -584,6 +655,45 @@ tr:last-child td{border-bottom:0}
     margin-top:0;
   }
 
+  .manual-card{
+    display:block;
+  }
+
+  .manual-card .btn{
+    margin-top:10px;
+  }
+
+  .bottom-nav{
+    position:fixed;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    z-index:998;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:6px;
+    padding:8px;
+    background:rgba(15,23,42,.94);
+    border-radius:20px;
+    box-shadow:0 18px 50px rgba(15,23,42,.28);
+  }
+
+  .bottom-nav a{
+    text-decoration:none;
+    color:#cbd5e1;
+    font-size:11px;
+    font-weight:900;
+    text-align:center;
+    padding:10px 4px;
+    border-radius:14px;
+  }
+
+  .bottom-nav a:active,
+  .bottom-nav a:hover{
+    background:#2563eb;
+    color:#fff;
+  }
+
   .app,
   .main,
   .card,
@@ -652,6 +762,7 @@ tr:last-child td{border-bottom:0}
       <a class="active" href="#dashboard">대시보드</a>
       <a href="#members">교인 관리</a>
       <a href="#services">예배 QR</a>
+      <a href="#manual">수동 출석</a>
       <a href="#attendance">출석 기록</a>
       <a href="#homeContent">교회 홈</a>
       <a href="#care">미출석 케어</a>
@@ -679,8 +790,9 @@ tr:last-child td{border-bottom:0}
     <section class="stats">
       <div class="stat"><span>전체 교인</span><b id="memberCount">-</b></div>
       <div class="stat"><span>활성 교인</span><b id="activeCount">-</b></div>
+      <div class="stat"><span>새가족</span><b id="newCount">-</b></div>
+      <div class="stat"><span>오늘 출석</span><b id="todayCount">-</b></div>
       <div class="stat"><span>예배 QR</span><b id="serviceCount">-</b></div>
-      <div class="stat"><span>출석 기록</span><b id="attendanceCount">-</b></div>
       <div class="stat"><span>4주 미출석</span><b id="absentCount">-</b></div>
     </section>
 
@@ -757,11 +869,17 @@ tr:last-child td{border-bottom:0}
       <div class="card-head">
         <div>
           <h2>교인 목록</h2>
-          <small>이름, 부서, 셀 기준으로 빠르게 검색합니다.</small>
+          <small>등록교인과 새가족을 구분해 확인합니다.</small>
         </div>
       </div>
 
+      <div class="tabs">
+        <button class="tab active" id="allTab" onclick="setMemberTab('all')">전체 교인</button>
+        <button class="tab" id="newTab" onclick="setMemberTab('new')">새가족</button>
+      </div>
+
       <input id="search" placeholder="이름 / 부서 / 셀 검색" oninput="renderMembers()">
+      <input id="newSearch" placeholder="새가족 검색" oninput="renderMembers()" style="display:none;">
 
       <div class="table-wrap">
         <table>
@@ -779,6 +897,28 @@ tr:last-child td{border-bottom:0}
           <tbody id="memberBody"></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="card" id="manual">
+      <div class="card-head">
+        <div>
+          <h2>관리자 수동 출석</h2>
+          <small>QR 사용이 어려운 교인을 관리자가 직접 출석 처리합니다.</small>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <select id="manualService"></select>
+        <select id="manualStatus">
+          <option value="present">출석</option>
+          <option value="late">지각</option>
+          <option value="absent">결석</option>
+        </select>
+      </div>
+
+      <input id="manualSearch" placeholder="이름 / 뒤4자리 검색" oninput="renderManualCandidates()">
+
+      <div class="manual-result" id="manualCandidates"></div>
     </section>
 
     <section class="card" id="attendance">
@@ -857,6 +997,14 @@ tr:last-child td{border-bottom:0}
   </main>
 </div>
 
+<nav class="bottom-nav">
+  <a href="#dashboard">홈</a>
+  <a href="#services">QR</a>
+  <a href="#manual">수동</a>
+  <a href="#members">교인</a>
+  <a href="#homeContent">홈관리</a>
+</nav>
+
 <div class="modal" id="qrModal" onclick="closeQrModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
     <div class="qr-title" id="qrModalTitle">예배 QR</div>
@@ -889,12 +1037,16 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let state = {
   members: [],
+  new_members: [],
   services: [],
   attendance: [],
   long_absent: [],
   profile: null,
-  counts: {}
+  counts: {},
+  home: null
 };
+
+let memberTab = 'all';
 
 const $ = id => document.getElementById(id);
 const base = location.origin;
@@ -955,14 +1107,18 @@ window.loadData = async function(){
 
     $('memberCount').textContent = data.counts.members;
     $('activeCount').textContent = data.counts.active_members;
+    $('newCount').textContent = data.counts.new_members || 0;
+    $('todayCount').textContent = data.counts.today_attendance || 0;
     $('serviceCount').textContent = data.counts.services;
-    $('attendanceCount').textContent = data.counts.attendance;
     $('absentCount').textContent = data.counts.long_absent;
 
     renderServices();
     renderMembers();
+    renderManualServiceOptions();
+    renderManualCandidates();
     renderAttendance();
     renderAbsent();
+    fillHomeContent();
 
   }catch(e){
     alert(e.message);
@@ -971,6 +1127,18 @@ window.loadData = async function(){
       logout();
     }
   }
+}
+
+function fillHomeContent(){
+  const home = state.home || {};
+
+  $('homeNoticeTitle').value = home.notice_title || '';
+  $('homeNoticeBody').value = home.notice_body || '';
+  $('homeSermonTitle').value = home.sermon_title || '';
+  $('homeSermonLink').value = home.sermon_link || '';
+  $('homeBulletinLink').value = home.bulletin_link || '';
+  $('homeNewFamilyText').value = home.new_family_text || '';
+  $('homeOfferingText').value = home.offering_text || '';
 }
 
 function renderServices(){
@@ -1003,87 +1171,32 @@ function renderServices(){
     }).join('') || '<p class="desc">생성된 예배 QR이 없습니다.</p>';
 }
 
-window.showQr = function(title, link){
-  $('qrModalTitle').textContent = title;
-  $('qrModalSub').textContent = '휴대폰 카메라로 스캔하면 출석체크 페이지가 열립니다.';
-  $('qrModalLink').textContent = link;
-  $('qrModal').classList.add('show');
+window.setMemberTab = function(tab){
+  memberTab = tab;
 
-  const canvas = $('qrCanvas');
-  const img = $('qrImage');
+  $('allTab').classList.toggle('active', tab === 'all');
+  $('newTab').classList.toggle('active', tab === 'new');
 
-  canvas.style.display = 'block';
-  img.style.display = 'none';
+  $('search').style.display = tab === 'all' ? 'block' : 'none';
+  $('newSearch').style.display = tab === 'new' ? 'block' : 'none';
 
-  if(window.QRCode && window.QRCode.toCanvas){
-    window.QRCode.toCanvas(
-      canvas,
-      link,
-      {
-        width:280,
-        margin:2,
-        errorCorrectionLevel:'M'
-      },
-      function(error){
-        if(error){
-          showQrImageFallback(link);
-        }
-      }
-    );
-  }else{
-    showQrImageFallback(link);
-  }
-}
-
-function showQrImageFallback(link){
-  const canvas = $('qrCanvas');
-  const img = $('qrImage');
-
-  canvas.style.display = 'none';
-  img.style.display = 'block';
-
-  img.src =
-    'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' +
-    encodeURIComponent(link);
-}
-
-window.hideQr = function(){
-  $('qrModal').classList.remove('show');
-}
-
-window.closeQrModal = function(e){
-  if(e.target.id === 'qrModal'){
-    hideQr();
-  }
-}
-
-window.printQr = function(){
-  window.print();
-}
-
-window.downloadQr = function(){
-  const canvas = $('qrCanvas');
-  const img = $('qrImage');
-
-  const a = document.createElement('a');
-
-  if(canvas.style.display !== 'none'){
-    a.href = canvas.toDataURL('image/png');
-  }else{
-    a.href = img.src;
-  }
-
-  a.download = 'glory-check-qr.png';
-  a.click();
+  renderMembers();
 }
 
 window.renderMembers = function(){
+  const inputId = memberTab === 'new' ? 'newSearch' : 'search';
+
   const q =
-    ($('search').value || '').toLowerCase();
+    ($(inputId).value || '').toLowerCase();
+
+  const source =
+    memberTab === 'new'
+      ? (state.new_members || [])
+      : (state.members || []);
 
   const list =
-    (state.members || []).filter(m =>
-      [m.name,m.department,m.group_name]
+    source.filter(m =>
+      [m.name,m.department,m.group_name,m.phone_last4]
         .join(' ')
         .toLowerCase()
         .includes(q)
@@ -1127,7 +1240,11 @@ window.renderMembers = function(){
           </button>
         </td>
       </tr>
-    `).join('');
+    `).join('') || `
+      <tr>
+        <td data-label="안내">표시할 교인이 없습니다.</td>
+      </tr>
+    `;
 }
 
 window.editMember = function(m){
@@ -1144,6 +1261,73 @@ window.editMember = function(m){
     top:0,
     behavior:'smooth'
   });
+}
+
+function renderManualServiceOptions(){
+  const list = state.services || [];
+
+  $('manualService').innerHTML =
+    list.map(s => `
+      <option value="${s.id}">
+        ${s.service_date} ${s.service_time || ''} · ${s.title}
+      </option>
+    `).join('') || '<option value="">예배가 없습니다</option>';
+}
+
+window.renderManualCandidates = function(){
+  const q =
+    ($('manualSearch').value || '').toLowerCase();
+
+  const list =
+    (state.members || [])
+      .filter(m =>
+        [m.name,m.phone_last4,m.department,m.group_name]
+          .join(' ')
+          .toLowerCase()
+          .includes(q)
+      )
+      .slice(0, 12);
+
+  $('manualCandidates').innerHTML =
+    list.map(m => `
+      <div class="manual-card">
+        <div>
+          <b>${m.name}</b>
+          <span>${m.department || ''} · ${m.group_name || ''} · ${m.phone_last4}</span>
+        </div>
+
+        <button class="btn light" onclick="manualCheckin('${m.id}')">
+          출석 처리
+        </button>
+      </div>
+    `).join('') || '<p class="desc">검색 결과가 없습니다.</p>';
+}
+
+window.manualCheckin = async function(memberId){
+  try{
+    const serviceId = $('manualService').value;
+    const status = $('manualStatus').value;
+
+    if(!serviceId){
+      alert('예배를 먼저 선택해주세요.');
+      return;
+    }
+
+    await api('/api/manual-attendance',{
+      method:'POST',
+      body:JSON.stringify({
+        member_id:memberId,
+        service_id:serviceId,
+        status
+      })
+    });
+
+    alert('수동 출석 처리되었습니다.');
+    await loadData();
+
+  }catch(e){
+    alert(e.message);
+  }
 }
 
 function renderAttendance(){
@@ -1256,12 +1440,85 @@ window.createService = async function(){
     });
 
     alert('예배 QR이 생성되었습니다.');
-
     await loadData();
 
   }catch(e){
     alert(e.message);
   }
+}
+
+window.showQr = function(title, link){
+  $('qrModalTitle').textContent = title;
+  $('qrModalSub').textContent = '휴대폰 카메라로 스캔하면 출석체크 페이지가 열립니다.';
+  $('qrModalLink').textContent = link;
+  $('qrModal').classList.add('show');
+
+  const canvas = $('qrCanvas');
+  const img = $('qrImage');
+
+  canvas.style.display = 'block';
+  img.style.display = 'none';
+
+  if(window.QRCode && window.QRCode.toCanvas){
+    window.QRCode.toCanvas(
+      canvas,
+      link,
+      {
+        width:280,
+        margin:2,
+        errorCorrectionLevel:'M'
+      },
+      function(error){
+        if(error){
+          showQrImageFallback(link);
+        }
+      }
+    );
+  }else{
+    showQrImageFallback(link);
+  }
+}
+
+function showQrImageFallback(link){
+  const canvas = $('qrCanvas');
+  const img = $('qrImage');
+
+  canvas.style.display = 'none';
+  img.style.display = 'block';
+
+  img.src =
+    'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' +
+    encodeURIComponent(link);
+}
+
+window.hideQr = function(){
+  $('qrModal').classList.remove('show');
+}
+
+window.closeQrModal = function(e){
+  if(e.target.id === 'qrModal'){
+    hideQr();
+  }
+}
+
+window.printQr = function(){
+  window.print();
+}
+
+window.downloadQr = function(){
+  const canvas = $('qrCanvas');
+  const img = $('qrImage');
+
+  const a = document.createElement('a');
+
+  if(canvas.style.display !== 'none'){
+    a.href = canvas.toDataURL('image/png');
+  }else{
+    a.href = img.src;
+  }
+
+  a.download = 'glory-check-qr.png';
+  a.click();
 }
 
 window.copyText = function(t){
@@ -1325,6 +1582,7 @@ window.saveHomeContent = async function(){
     });
 
     alert('교회 홈 내용이 저장되었습니다.');
+    await loadData();
 
   }catch(e){
     alert(e.message);
