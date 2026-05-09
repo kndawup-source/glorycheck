@@ -217,7 +217,7 @@ async function checkin(){
     return;
   }
 
-  if(!/^\\d{4}$/.test(phone_last4)){
+  if(!/^\d{4}$/.test(phone_last4)){
     showError('휴대폰 번호 뒤 4자리를 입력해주세요.');
     return;
   }
