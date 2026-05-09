@@ -8,8 +8,7 @@
 <style>
 *{box-sizing:border-box}
 
-html,
-body{
+html,body{
   width:100%;
   max-width:100%;
   overflow-x:hidden;
@@ -42,9 +41,7 @@ input:focus,select:focus{
   box-shadow:0 0 0 4px rgba(37,99,235,.08);
 }
 
-#search,
-#newSearch,
-#manualSearch{
+#search,#newSearch,#manualSearch{
   margin-bottom:16px;
 }
 
@@ -335,6 +332,17 @@ h1{
   font-weight:900;
 }
 
+.notice-box{
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1e3a8a;
+  border-radius:16px;
+  padding:13px;
+  margin-bottom:14px;
+  font-size:14px;
+  line-height:1.55;
+}
+
 .table-wrap{
   width:100%;
   max-width:100%;
@@ -444,9 +452,7 @@ tr:last-child td{border-bottom:0}
 
 .print-only{display:none}
 
-.bottom-nav{
-  display:none;
-}
+.bottom-nav{display:none}
 
 @media(max-width:1040px){
   .app{grid-template-columns:1fr}
@@ -535,12 +541,6 @@ tr:last-child td{border-bottom:0}
     width:100%;
   }
 
-  #search,
-  #newSearch,
-  #manualSearch{
-    margin-bottom:16px;
-  }
-
   .tabs{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -553,12 +553,7 @@ tr:last-child td{border-bottom:0}
     overflow:visible;
   }
 
-  table,
-  thead,
-  tbody,
-  tr,
-  th,
-  td{
+  table,thead,tbody,tr,th,td{
     display:block;
     width:100%;
     min-width:0;
@@ -603,9 +598,6 @@ tr:last-child td{border-bottom:0}
     border-radius:12px;
   }
 
-  td[data-label="관리"]{align-items:center}
-  td[data-label="관리"]::before{margin-top:0}
-
   .manual-card{display:block}
   .manual-card .btn{margin-top:10px}
 
@@ -639,29 +631,10 @@ tr:last-child td{border-bottom:0}
     background:#2563eb;
     color:#fff;
   }
-
-  .app,
-  .main,
-  .card,
-  .mobile-header,
-  .table-wrap,
-  .service-card{
-    max-width:100%;
-    overflow-x:hidden;
-  }
-
-  input,
-  select,
-  button{
-    max-width:100%;
-  }
 }
 
 @media(max-width:420px){
-  .stats{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .mobile-header{padding:14px}
   .card{padding:15px}
 }
@@ -704,6 +677,7 @@ tr:last-child td{border-bottom:0}
       <a href="#members">교인 관리</a>
       <a href="#services">예배 QR</a>
       <a href="#manual">수동 출석</a>
+      <a href="#locationSetting">교회 위치</a>
       <a href="#attendance">출석 기록</a>
       <a href="#homeContent">교회 홈</a>
       <a href="#care">미출석 케어</a>
@@ -864,6 +838,38 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
+    <section class="card" id="locationSetting">
+      <div class="card-head">
+        <div>
+          <h2>교회 위치 설정</h2>
+          <small>현장 출석체크 허용 위치와 반경을 설정합니다.</small>
+        </div>
+      </div>
+
+      <div class="notice-box" id="locationStatus">
+        현재 교회 위치를 불러오는 중입니다.
+      </div>
+
+      <div class="form-grid">
+        <input id="churchLatitude" placeholder="위도">
+        <input id="churchLongitude" placeholder="경도">
+
+        <input
+          id="churchRadius"
+          class="full"
+          type="number"
+          min="30"
+          max="1000"
+          placeholder="출석 허용 반경 m 예: 150"
+        >
+      </div>
+
+      <div class="row" style="margin-top:18px">
+        <button class="btn light" onclick="useCurrentLocationForChurch()">현재 위치로 설정</button>
+        <button class="btn" onclick="saveChurchLocation()">교회 위치 저장</button>
+      </div>
+    </section>
+
     <section class="card" id="attendance">
       <div class="card-head">
         <div>
@@ -949,7 +955,7 @@ tr:last-child td{border-bottom:0}
   <a href="#services">QR</a>
   <a href="#manual">수동</a>
   <a href="#members">교인</a>
-  <a href="#homeContent">홈관리</a>
+  <a href="#locationSetting">위치</a>
 </nav>
 
 <div class="modal" id="qrModal" onclick="closeQrModal(event)">
@@ -989,6 +995,7 @@ let state = {
   attendance: [],
   long_absent: [],
   profile: null,
+  church: null,
   counts: {},
   home: null
 };
@@ -1067,6 +1074,7 @@ window.loadData = async function(){
     renderAttendance();
     renderAbsent();
     fillHomeContent();
+    fillChurchLocation();
 
   }catch(e){
     alert(e.message);
@@ -1087,6 +1095,22 @@ function fillHomeContent(){
   $('homeBulletinLink').value = home.bulletin_link || '';
   $('homeNewFamilyText').value = home.new_family_text || '';
   $('homeOfferingText').value = home.offering_text || '';
+}
+
+function fillChurchLocation(){
+  const church = state.church || {};
+
+  $('churchLatitude').value = church.latitude || '';
+  $('churchLongitude').value = church.longitude || '';
+  $('churchRadius').value = church.checkin_radius_m || 150;
+
+  if(church.latitude && church.longitude){
+    $('locationStatus').textContent =
+      `교회 위치 설정됨 · 위도 ${church.latitude}, 경도 ${church.longitude}, 반경 ${church.checkin_radius_m || 150}m`;
+  }else{
+    $('locationStatus').textContent =
+      '교회 위치가 아직 설정되지 않았습니다. 현재 위치로 설정 후 저장해주세요.';
+  }
 }
 
 function renderServices(){
@@ -1282,11 +1306,8 @@ function renderAttendance(){
       </tr>
     `;
 
-  const btn = $('attendanceToggleBtn');
-
-  if(btn){
-    btn.textContent = attendanceExpanded ? '접기' : '전체 보기';
-  }
+  $('attendanceToggleBtn').textContent =
+    attendanceExpanded ? '접기' : '전체 보기';
 }
 
 function renderAbsent(){
@@ -1359,6 +1380,82 @@ window.createService = async function(){
   }
 }
 
+function getCurrentPosition(){
+  return new Promise((resolve, reject) => {
+    if(!navigator.geolocation){
+      reject(new Error('이 기기는 위치 확인을 지원하지 않습니다.'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        });
+      },
+      error => {
+        if(error.code === error.PERMISSION_DENIED){
+          reject(new Error('위치 권한이 거부되었습니다.'));
+          return;
+        }
+
+        reject(new Error('현재 위치를 확인하지 못했습니다.'));
+      },
+      {
+        enableHighAccuracy:true,
+        timeout:10000,
+        maximumAge:0
+      }
+    );
+  });
+}
+
+window.useCurrentLocationForChurch = async function(){
+  try{
+    $('locationStatus').textContent =
+      '현재 위치를 확인하는 중입니다...';
+
+    const position =
+      await getCurrentPosition();
+
+    $('churchLatitude').value = position.latitude;
+    $('churchLongitude').value = position.longitude;
+
+    if(!$('churchRadius').value){
+      $('churchRadius').value = 150;
+    }
+
+    $('locationStatus').textContent =
+      `현재 위치 확인 완료 · 오차 범위 약 ${Math.round(position.accuracy)}m`;
+
+  }catch(e){
+    alert(e.message);
+    $('locationStatus').textContent =
+      '위치 확인에 실패했습니다. 브라우저 위치 권한을 확인해주세요.';
+  }
+}
+
+window.saveChurchLocation = async function(){
+  try{
+    await api('/api/save-church-location',{
+      method:'POST',
+      body:JSON.stringify({
+        latitude:$('churchLatitude').value,
+        longitude:$('churchLongitude').value,
+        checkin_radius_m:$('churchRadius').value || 150
+      })
+    });
+
+    alert('교회 위치가 저장되었습니다.');
+    await loadData();
+
+  }catch(e){
+    alert(e.message);
+  }
+}
+
 window.showQr = function(title, link){
   $('qrModalTitle').textContent = title;
   $('qrModalSub').textContent = '휴대폰 카메라로 스캔하면 출석체크 페이지가 열립니다.';
@@ -1375,11 +1472,7 @@ window.showQr = function(title, link){
     window.QRCode.toCanvas(
       canvas,
       link,
-      {
-        width:280,
-        margin:2,
-        errorCorrectionLevel:'M'
-      },
+      { width:280, margin:2, errorCorrectionLevel:'M' },
       function(error){
         if(error){
           showQrImageFallback(link);
