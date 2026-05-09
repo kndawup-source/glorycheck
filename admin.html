@@ -232,8 +232,9 @@ th,td{
     </p>
 
     <div class="qr-canvas-wrap">
-      <canvas id="qrCanvas"></canvas>
-    </div>
+  <canvas id="qrCanvas"></canvas>
+  <img id="qrImage" style="display:none;width:280px;height:280px" alt="QR 코드">
+</div>
 
     <div class="qr-link" id="qrModalLink"></div>
 
@@ -428,26 +429,60 @@ function renderServices(){
     }).join('');
 }
 
-window.showQr = function(title,link){
+window.showQr = function(title, link){
 
-  currentQr = {title,link};
+  currentQr = { title, link };
 
-  $('qrModalTitle').textContent =
-    title;
+  $('qrModalTitle').textContent = title;
 
-  $('qrModalLink').textContent =
-    link;
+  $('qrModalSub').textContent =
+    '휴대폰 카메라로 스캔하면 출석체크 페이지가 열립니다.';
+
+  $('qrModalLink').textContent = link;
 
   $('qrModal').classList.add('show');
 
-  QRCode.toCanvas(
-    $('qrCanvas'),
-    link,
-    {
-      width:280,
-      margin:2
-    }
-  );
+  const canvas = $('qrCanvas');
+  const img = $('qrImage');
+
+  canvas.style.display = 'block';
+  img.style.display = 'none';
+
+  if (window.QRCode && window.QRCode.toCanvas) {
+
+    window.QRCode.toCanvas(
+      canvas,
+      link,
+      {
+        width: 280,
+        margin: 2,
+        errorCorrectionLevel: 'M'
+      },
+      function(error){
+
+        if(error){
+          showQrImageFallback(link);
+        }
+      }
+    );
+
+  } else {
+
+    showQrImageFallback(link);
+  }
+}
+
+function showQrImageFallback(link){
+
+  const canvas = $('qrCanvas');
+  const img = $('qrImage');
+
+  canvas.style.display = 'none';
+  img.style.display = 'block';
+
+  img.src =
+    'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data='
+    + encodeURIComponent(link);
 }
 
 window.hideQr = function(){
