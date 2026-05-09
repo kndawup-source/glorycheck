@@ -7,6 +7,13 @@
 
 <style>
 *{box-sizing:border-box}
+
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
 body{
   margin:0;
   min-height:100vh;
@@ -20,6 +27,7 @@ body{
   padding:18px;
   color:#111827;
 }
+
 .card{
   width:100%;
   max-width:430px;
@@ -29,6 +37,7 @@ body{
   padding:28px;
   box-shadow:0 24px 70px rgba(15,23,42,.10);
 }
+
 .brand{
   font-weight:1000;
   color:#2563eb;
@@ -36,19 +45,24 @@ body{
   letter-spacing:.09em;
   font-size:13px;
 }
+
 h1{
   font-size:30px;
   margin:0 0 8px;
   letter-spacing:-.05em;
 }
+
 p{
   color:#64748b;
   line-height:1.6;
 }
+
 input,button{
   width:100%;
+  max-width:100%;
   font:inherit;
 }
+
 input{
   padding:16px;
   border:1px solid #dbe3ef;
@@ -56,10 +70,12 @@ input{
   margin:8px 0;
   outline:none;
 }
+
 input:focus{
   border-color:#2563eb;
   box-shadow:0 0 0 4px rgba(37,99,235,.08);
 }
+
 button{
   padding:16px;
   border:0;
@@ -70,14 +86,17 @@ button{
   margin-top:10px;
   cursor:pointer;
 }
+
 button.secondary{
   background:#eef2ff;
   color:#1d4ed8;
 }
+
 button:disabled{
   opacity:.6;
   cursor:not-allowed;
 }
+
 .notice{
   background:#f8fafc;
   border:1px dashed #cbd5e1;
@@ -88,13 +107,27 @@ button:disabled{
   color:#374151;
   line-height:1.55;
 }
+
+.location-box{
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1e3a8a;
+  border-radius:16px;
+  padding:13px;
+  margin:14px 0;
+  font-size:14px;
+  line-height:1.55;
+}
+
 .success{
   text-align:center;
   display:none;
 }
+
 .success .icon{
   font-size:58px;
 }
+
 .error{
   display:none;
   background:#fef2f2;
@@ -106,12 +139,14 @@ button:disabled{
   font-size:14px;
   line-height:1.5;
 }
+
 .footer{
   margin-top:16px;
   text-align:center;
   color:#9ca3af;
   font-size:12px;
 }
+
 .badge{
   display:inline-block;
   padding:7px 11px;
@@ -139,7 +174,12 @@ button:disabled{
     </p>
 
     <div class="notice">
-      입력한 정보는 출석 확인과 새가족 안내 목적으로만 사용됩니다.
+      출석체크는 교회 현장에서만 가능합니다.
+      위치 권한을 허용해야 출석이 완료됩니다.
+    </div>
+
+    <div class="location-box" id="locationBox">
+      위치 확인 전입니다. 출석 버튼을 누르면 현재 위치를 확인합니다.
     </div>
 
     <input id="name" placeholder="이름" autocomplete="name">
@@ -157,7 +197,7 @@ button:disabled{
     >
 
     <button id="submitBtn" onclick="checkin()">
-      출석 완료하기
+      위치 확인 후 출석하기
     </button>
 
     <div id="errorBox" class="error"></div>
@@ -179,6 +219,8 @@ button:disabled{
     <div id="newBadge" class="badge" style="display:none;">
       새가족으로 등록되었습니다
     </div>
+
+    <div id="distanceBadge" class="badge" style="display:none;"></div>
 
     <button class="secondary" onclick="goHome()">
       교회 홈으로 이동
@@ -208,8 +250,49 @@ function clearError(){
   box.style.display = 'none';
 }
 
+function setLocationText(message){
+  document.getElementById('locationBox').textContent = message;
+}
+
 function goHome(){
   location.href = homeUrl;
+}
+
+function getCurrentPosition(){
+  return new Promise((resolve, reject) => {
+    if(!navigator.geolocation){
+      reject(new Error('이 기기는 위치 확인을 지원하지 않습니다.'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        });
+      },
+      error => {
+        if(error.code === error.PERMISSION_DENIED){
+          reject(new Error('위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.'));
+          return;
+        }
+
+        if(error.code === error.TIMEOUT){
+          reject(new Error('위치 확인 시간이 초과되었습니다. 다시 시도해주세요.'));
+          return;
+        }
+
+        reject(new Error('현재 위치를 확인하지 못했습니다. 잠시 후 다시 시도해주세요.'));
+      },
+      {
+        enableHighAccuracy:true,
+        timeout:10000,
+        maximumAge:0
+      }
+    );
+  });
 }
 
 async function checkin(){
@@ -243,6 +326,25 @@ async function checkin(){
   }
 
   btn.disabled = true;
+  btn.textContent = '위치 확인 중...';
+
+  let position;
+
+  try{
+    position = await getCurrentPosition();
+
+    setLocationText(
+      `위치 확인 완료 · 오차 범위 약 ${Math.round(position.accuracy)}m`
+    );
+
+  }catch(error){
+    showError(error.message);
+    setLocationText('위치 확인이 필요합니다. 위치 권한을 허용해주세요.');
+    btn.disabled = false;
+    btn.textContent = '위치 확인 후 출석하기';
+    return;
+  }
+
   btn.textContent = '출석 확인 중...';
 
   try{
@@ -255,7 +357,10 @@ async function checkin(){
         token,
         name,
         phone_last4,
-        department
+        department,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        accuracy: position.accuracy
       })
     });
 
@@ -265,7 +370,7 @@ async function checkin(){
     if(!res.ok){
       showError(data.error || '출석체크에 실패했습니다.');
       btn.disabled = false;
-      btn.textContent = '출석 완료하기';
+      btn.textContent = '위치 확인 후 출석하기';
       return;
     }
 
@@ -284,14 +389,20 @@ async function checkin(){
       document.getElementById('newBadge').style.display = 'inline-block';
     }
 
+    if(typeof data.distance_m === 'number'){
+      const badge = document.getElementById('distanceBadge');
+      badge.style.display = 'inline-block';
+      badge.textContent = `현장 확인 완료 · 약 ${data.distance_m}m`;
+    }
+
     setTimeout(() => {
       location.href = homeUrl;
-    }, 1800);
+    }, 2200);
 
   }catch(error){
     showError('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     btn.disabled = false;
-    btn.textContent = '출석 완료하기';
+    btn.textContent = '위치 확인 후 출석하기';
   }
 }
 </script>
