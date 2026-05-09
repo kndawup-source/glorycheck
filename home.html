@@ -10,36 +10,48 @@
 body{
   margin:0;
   min-height:100vh;
-  background:#f3f6fb;
+  background:#f4f7fb;
   color:#111827;
   font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;
 }
 .wrap{
-  max-width:920px;
+  max-width:960px;
   margin:0 auto;
   padding:20px;
 }
 .hero{
   background:linear-gradient(135deg,#0f172a,#1d4ed8);
   color:#fff;
-  border-radius:30px;
-  padding:28px;
+  border-radius:32px;
+  padding:30px;
   box-shadow:0 24px 70px rgba(15,23,42,.18);
 }
 .brand{
   font-weight:1000;
-  letter-spacing:.08em;
+  letter-spacing:.09em;
   color:#bfdbfe;
   font-size:13px;
 }
 h1{
   margin:14px 0 8px;
-  font-size:34px;
-  letter-spacing:-.05em;
+  font-size:36px;
+  letter-spacing:-.055em;
 }
 .hero p{
   color:#dbeafe;
-  line-height:1.6;
+  line-height:1.65;
+  margin:0;
+}
+.badge{
+  display:inline-block;
+  margin-top:16px;
+  padding:7px 11px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
 }
 .grid{
   display:grid;
@@ -52,16 +64,17 @@ h1{
   border:1px solid #e5e7eb;
   border-radius:24px;
   padding:20px;
-  box-shadow:0 14px 34px rgba(15,23,42,.05);
+  box-shadow:0 12px 30px rgba(15,23,42,.045);
 }
 .card h2{
   margin:0 0 10px;
   font-size:18px;
+  letter-spacing:-.025em;
 }
 .card p{
   margin:0;
   color:#64748b;
-  line-height:1.55;
+  line-height:1.58;
 }
 .section{
   margin-top:18px;
@@ -83,15 +96,6 @@ h1{
   color:#64748b;
   font-size:13px;
 }
-.badge{
-  display:inline-block;
-  padding:7px 11px;
-  background:#eef2ff;
-  color:#1d4ed8;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-}
 .footer{
   text-align:center;
   color:#94a3b8;
@@ -100,9 +104,11 @@ h1{
 }
 @media(max-width:720px){
   .wrap{padding:14px}
+  .hero{border-radius:26px;padding:24px}
+  h1{font-size:31px}
   .grid{grid-template-columns:1fr}
-  h1{font-size:30px}
-  .hero{border-radius:24px}
+  .service{display:block}
+  .service span{display:block;margin-top:4px}
 }
 </style>
 </head>
@@ -112,10 +118,13 @@ h1{
 <div class="wrap">
   <section class="hero">
     <div class="brand">GLORY CHECK</div>
+
     <h1 id="churchName">교회 홈</h1>
+
     <p>
       출석이 확인되었습니다. 오늘의 예배와 교회 안내를 확인해주세요.
     </p>
+
     <span class="badge" id="churchCode">교회코드</span>
   </section>
 
